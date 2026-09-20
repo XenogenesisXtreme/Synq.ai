@@ -1,0 +1,60 @@
+SYNQ.AI PLANNED DIRECTORY STRUCTURE
+====================================
+
+This is a planning tree, not an instruction to build the application yet.
+
+synq-ai/
+├── .env.example                      # Supabase and deployment configuration template
+├── package.json                       # Tauri/Vite/React scripts and dependencies
+├── README.md                          # Product, setup, and self-hosting documentation
+├── api/                               # Vercel serverless routing functions
+│   ├── process-notes.js              # Gemini pedagogical processing route
+│   └── generate-audio.js             # ElevenLabs audio synthesis route
+├── src-tauri/                         # Tauri Rust wrapper and native capabilities
+│   ├── tauri.conf.json
+│   └── src/
+├── src/                               # Vite + React desktop client
+│   ├── App.jsx                        # Main Synq Workspace container
+│   ├── main.jsx                       # React entry point
+│   ├── components/
+│   │   ├── Navbar.jsx                 # Navigation and workspace switcher
+│   │   ├── NoteEditor.jsx             # Markdown note-taking workspace
+│   │   ├── PedagogicalViewer.jsx      # Structured notebook and lesson viewer
+│   │   ├── AudioPlayer.jsx            # Generated podcast playback
+│   │   └── SettingsModal.jsx          # BYOK setup and account settings
+│   ├── modules/
+│   │   ├── lecture-lens/              # Source capture, upload, transcript, timestamps
+│   │   ├── master-pedagogy/           # MPS sessions and notebook generation
+│   │   ├── mastery/                    # Progress, quizzes, and revision
+│   │   ├── cheat-sheet/                # Condensed study materials
+│   │   └── code-bar/                   # Coding-task workspace
+│   ├── lib/
+│   │   ├── supabaseClient.js          # Auth and cloud-sync client
+│   │   ├── apiService.js              # Calls to Vercel routes
+│   │   ├── secureKeys.js              # Tauri-backed local credential access
+│   │   └── notebookSchema.js           # Structured block validation
+│   └── styles/
+│       └── global.css                 # Visual system and accessibility styles
+├── supabase/
+│   ├── migrations/                    # Reviewed database migrations
+│   ├── seed/
+│   └── storage-policies/
+└── docs/
+    ├── notebook-contract.md
+    ├── deployment-modes.md
+    └── self-hosting.md
+
+NAMING BOUNDARIES
+-----------------
+Synq.ai is the repository and product. Lecture Lens, Master Pedagogy,
+Synq Extension, Synq Workspace, Synq Mastery, and Code Bar are product
+modules. The technical tree should preserve these names in user-facing
+copy while keeping implementation boundaries explicit.
+
+INITIAL IMPLEMENTATION BOUNDARY
+--------------------------------
+The first build should prioritize the Tauri desktop shell, Synq Workspace,
+Lecture Lens ingestion, Master Pedagogy notebook generation, Supabase sync,
+local BYOK settings, and optional ElevenLabs audio recaps. Synq Mastery and
+Code Bar should begin with usable foundational flows. Synq Extension should
+be developed after the ingestion contract is stable.
