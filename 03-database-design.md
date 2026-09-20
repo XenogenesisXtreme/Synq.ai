@@ -8,7 +8,7 @@ This is a conceptual schema for review. It is not a Supabase migration and must 
 
 Supabase Auth remains the source of truth for identity. A public profile record may reference `auth.users.id`, but the application should not replace Supabase Auth with an independently managed users table. All user-owned rows should carry an owner identifier or derive ownership through a parent relationship.
 
-Provider API keys are deliberately outside this database design. Under the initial BYOK model, Gemini and ElevenLabs keys belong in the desktop client's OS-backed secure credential store and must not be stored in profiles, notebooks, settings tables, logs, or Supabase Storage.
+Provider API keys are deliberately outside this database design. Under the managed cloud model, Gemini and ElevenLabs keys belong in protected server deployment secrets and must not be stored in profiles, notebooks, settings tables, logs, or Supabase Storage. The desktop client does not request or store provider keys.
 
 ## Core entities
 

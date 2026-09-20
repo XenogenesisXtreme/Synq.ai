@@ -2,11 +2,11 @@
 
 ## Phase 0: Design approval
 
-Confirm the product vocabulary, notebook examples, learner experience, BYOK security model, provider limits, privacy expectations, desktop packaging approach, and repository shape. The output is a signed-off design package and a short list of intentionally deferred decisions.
+Confirm the product vocabulary, notebook examples, learner experience, managed-provider security model, provider limits, privacy expectations, desktop packaging approach, and repository shape. The output is a signed-off design package and a short list of intentionally deferred decisions.
 
 ## Phase 1: Desktop foundation
 
-Create the Tauri + Vite + React application, configure cross-platform packaging, establish shared domain types, add environment documentation, configure Supabase Auth, and apply reviewed database migrations. Implement the Settings experience and the minimal Tauri-backed secure key store for Gemini and ElevenLabs credentials.
+Create the Tauri + Vite + React application, configure cross-platform packaging, establish shared domain types, add environment documentation, configure Supabase Auth, and apply reviewed database migrations. Implement the account, service-status, and download settings without exposing provider-key configuration to ordinary users.
 
 ## Phase 2: Lecture Lens and Synq Workspace
 
@@ -18,7 +18,7 @@ Finalize the notebook block schema, required sections, source-reference format, 
 
 ## Phase 4: Audio recaps
 
-Generate a clean audio script from completed notebook content. Use the locally configured ElevenLabs BYOK credential through the secure routing path, store the result in private Supabase Storage, create playback metadata, and provide playback in Synq Workspace. Audio failure must not invalidate a completed notebook.
+Generate a clean audio script from completed notebook content. Use the protected Synq.ai ElevenLabs deployment credential through the secure routing path, store the result in private Supabase Storage, create playback metadata, and provide playback in Synq Workspace. Audio failure must not invalidate a completed notebook.
 
 ## Phase 5: Synq Mastery, quizzes, cheat sheets, and Code Bar
 
@@ -30,7 +30,7 @@ After the ingestion contract is stable, build the extension package. Start with 
 
 ## Phase 7: Self-hosting and release hardening
 
-Document Supabase and Vercel setup, provider-key configuration, desktop packaging, privacy, data export and deletion, provider failure tests, accessibility, rate limits, contribution guidance, and deployment instructions. Add institutional and managed-cloud deployment modes only after the BYOK path is reliable.
+Document Supabase and Vercel setup, protected provider-secret configuration, desktop packaging, privacy, data export and deletion, provider failure tests, accessibility, rate limits, contribution guidance, and deployment instructions. Add institutional and operator self-hosted deployment modes only after the managed cloud path is reliable.
 
 ## Delivery rule
 

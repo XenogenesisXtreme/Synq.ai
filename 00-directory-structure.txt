@@ -21,7 +21,7 @@ synq-ai/
 │   │   ├── NoteEditor.jsx             # Markdown note-taking workspace
 │   │   ├── PedagogicalViewer.jsx      # Structured notebook and lesson viewer
 │   │   ├── AudioPlayer.jsx            # Generated podcast playback
-│   │   └── SettingsModal.jsx          # BYOK setup and account settings
+│   │   └── SettingsModal.jsx          # Account, privacy, service, and download settings
 │   ├── modules/
 │   │   ├── lecture-lens/              # Source capture, upload, transcript, timestamps
 │   │   ├── master-pedagogy/           # MPS sessions and notebook generation
@@ -31,7 +31,7 @@ synq-ai/
 │   ├── lib/
 │   │   ├── supabaseClient.js          # Auth and cloud-sync client
 │   │   ├── apiService.js              # Calls to Vercel routes
-│   │   ├── secureKeys.js              # Tauri-backed local credential access
+│   │   ├── apiStatus.js               # Managed service status and quota information
 │   │   └── notebookSchema.js           # Structured block validation
 │   └── styles/
 │       └── global.css                 # Visual system and accessibility styles
@@ -55,6 +55,6 @@ INITIAL IMPLEMENTATION BOUNDARY
 --------------------------------
 The first build should prioritize the Tauri desktop shell, Synq Workspace,
 Lecture Lens ingestion, Master Pedagogy notebook generation, Supabase sync,
-local BYOK settings, and optional ElevenLabs audio recaps. Synq Mastery and
+managed cloud provider routing, and optional ElevenLabs audio recaps. Synq Mastery and
 Code Bar should begin with usable foundational flows. Synq Extension should
 be developed after the ingestion contract is stable.

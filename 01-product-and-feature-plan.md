@@ -31,7 +31,7 @@ If a learner starts an MPS text-only session without a lecture upload, Master Pe
 
 The first release should include login and account pages, the desktop Synq Workspace, user-provided text input, optional file upload, Lecture Lens processing, Master Pedagogy text sessions, structured notebook generation, rendered Markdown, lesson-style notebook sections, lecture timestamps where available, quizzes, cheat sheets, basic Synq Mastery progress, optional ElevenLabs audio recaps, a lecture library, downloadable learning materials, and an initial Code Bar foundation.
 
-The application should support a Bring-Your-Own-Key model. Users may enter their own Gemini and ElevenLabs keys in Settings. Keys should be stored locally on the desktop client using a secure platform-backed mechanism where available, never in the Synq database, and never in source control. The hosted routing layer should use those credentials only to relay the user's request. A managed cloud mode can be added later, but it is not the default assumption in this planning revision.
+The ordinary application should not require users to source or enter provider API keys. Gemini and ElevenLabs credentials are managed on the Synq.ai server side. The cloud service must apply authentication, quotas, rate limits, abuse prevention, and cost controls. An operator self-hosting the open-source stack may configure provider credentials in deployment secrets, but that is not part of the normal downloadable-client experience.
 
 ## Notebook requirements
 

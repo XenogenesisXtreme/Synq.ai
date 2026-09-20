@@ -9,11 +9,11 @@ Each connector should perform one kind of work and return a small, stable contra
 | Connector or runtime | Job | Credential model | Must not own |
 |---|---|---|---|
 | Tauri + Vite + React | Desktop client, local settings, UI, and native secure-key bridge | No provider credential ownership in the UI bundle | Pedagogical truth, cloud ownership, or raw provider secrets in ordinary storage |
-| Google Gemini | Transform lecture material into pedagogical structures and learning activities | User-provided BYOK Gemini key | Authentication, ownership, storage, or direct uncontrolled browser access |
-| Supabase Auth and Database | Identity, PostgreSQL persistence, RLS, and cloud synchronization | User-controlled Supabase project credentials | Pedagogical reasoning or audio synthesis |
-| Supabase Storage | Private audio and learning-asset storage | User-controlled Supabase project | Access decisions without application and storage policies |
-| ElevenLabs | Convert an approved audio-ready script into speech | User-provided BYOK ElevenLabs key | Notebook structure, mastery state, or user permissions |
-| Vercel | Secure serverless routing intermediary | Deployment owner configures server environment | Long-term data ownership or provider-specific product logic |
+| Google Gemini | Transform lecture material into pedagogical structures and learning activities | Synq.ai-managed server credential | Authentication, ownership, storage, or direct uncontrolled browser access |
+| Supabase Auth and Database | Identity, PostgreSQL persistence, RLS, and cloud synchronization | Synq.ai-managed project configuration | Pedagogical reasoning or audio synthesis |
+| Supabase Storage | Private audio and learning-asset storage | Synq.ai-managed project configuration | Access decisions without application and storage policies |
+| ElevenLabs | Convert an approved audio-ready script into speech | Synq.ai-managed server credential | Notebook structure, mastery state, or user permissions |
+| Vercel | Host the cloud application and secure serverless routing intermediary | Synq.ai deployment secrets | Long-term data ownership or provider-specific product logic |
 | Synq Extension | Capture permitted browser context and submit it to Synq.ai | No provider API keys | Authoritative learning records or secret storage |
 
 ## Gemini contract
@@ -26,15 +26,15 @@ The application should use Supabase through typed data-access functions. These f
 
 ## ElevenLabs contract
 
-The audio layer should accept a clean spoken script rather than arbitrary interface markdown. It should return an audio object or provider response that can be uploaded to private storage. If no ElevenLabs key is configured, the application should explain how to configure one and leave the notebook available.
+The audio layer should accept a clean spoken script rather than arbitrary interface markdown. It should return an audio object or provider response that can be uploaded to private storage. If the managed audio quota is unavailable, the application should explain the service limit and leave the notebook available; it should not ask ordinary users to configure an ElevenLabs key.
 
 ## Vercel contract
 
-Vercel server routes should authenticate the caller, validate payload size and shape, receive a BYOK credential only for the current provider call, invoke the provider, and return stable application responses. They should not persist, log, or expose provider keys. They should not expose provider error bodies directly. Long-running generation should eventually move to a queue or background job if serverless execution limits make synchronous processing unreliable.
+Vercel server routes should authenticate the caller, validate payload size and shape, apply quotas, invoke the provider using protected deployment secrets, and return stable application responses. They should not persist, log, or expose provider keys. They should not expose provider error bodies directly. Long-running generation should eventually move to a queue or background job if serverless execution limits make synchronous processing unreliable.
 
-## Local key-management contract
+## Client credential contract
 
-The Tauri layer should expose a minimal command or plugin interface for storing, retrieving, testing, and deleting provider keys from an OS-backed secure store. React components should never write keys to ordinary localStorage as the final implementation. The key manager should return a masked status such as configured or not configured, not the raw secret.
+The Tauri and React clients must not request, store, or display Gemini or ElevenLabs keys. Settings should expose account, privacy, download, and service-status controls instead. Administrative provider credentials belong only in protected server deployment configuration. A separate operator self-hosting package may document server-side provider configuration without adding BYOK to the ordinary client.
 
 ## Extension contract
 

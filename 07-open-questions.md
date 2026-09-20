@@ -6,13 +6,13 @@ This document records decisions that should be answered before implementation or
 
 The example notebook and interface have not yet been included in this workspace. The visual design and block vocabulary should be refined after the reference is supplied as screenshots, a URL, a file, or a repository path.
 
-## BYOK key storage
+## Managed provider credentials
 
-The product direction now assumes user-provided Gemini and ElevenLabs keys. The implementation must choose the Tauri secure-storage plugin or an OS-specific credential-store approach. Plain localStorage is acceptable only for a temporary prototype and must not be the final security design. The threat model should document what happens if a local desktop profile is compromised.
+The product direction now assumes Synq.ai-managed Gemini and ElevenLabs credentials. The implementation must choose protected Vercel deployment secrets or an equivalent server-side secret manager. The threat model should cover secret rotation, provider outage, account abuse, quota exhaustion, and access separation between application operators.
 
-## Serverless routing with BYOK
+## Serverless routing with managed credentials
 
-The system still needs a final decision on whether Vercel receives user keys for each request or whether selected provider calls can be made directly from the desktop client. The preferred default is a validated server-side relay that does not persist the key. Direct calls reduce relay cost but increase exposure and make centralized policy harder.
+The preferred default is a validated server-side relay that uses protected deployment secrets and never exposes provider keys to clients. Direct calls from browser or desktop clients are out of scope for the ordinary user experience because they would expose credentials and bypass centralized policy.
 
 ## Supabase sync and offline behavior
 
@@ -44,7 +44,7 @@ Define the initial mastery model. A transparent rule-based model is recommended 
 
 ## Deployment modes
 
-The initial open-source deployment is BYOK self-hosting. A later Synq.ai Cloud mode could provide managed provider credentials under usage controls. A fully local AI mode would require separate planning for local models, hardware, speech-to-text, text-to-speech, model licensing, and offline operation.
+The initial deployment is managed Synq.ai Cloud accessed through browser and downloadable clients. An institutional or operator self-hosted deployment may use its own server-side provider credentials. A fully local AI mode would require separate planning for local models, hardware, speech-to-text, text-to-speech, model licensing, and offline operation.
 
 ## Collaboration
 
