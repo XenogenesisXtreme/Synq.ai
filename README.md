@@ -2,7 +2,7 @@
 
 > **A cloud-hosted, downloadable AI learning workspace that turns lectures and study questions into guided, interactive learning.**
 
-**Status:** Product and architecture planning. This repository currently contains design documents only. Application implementation, production deployment, and public client downloads will follow design approval.
+**Status:** Product and architecture planning. This repository currently contains design documents only. Application implementation, production deployment, and public client downloads will follow design approval. For more info, check out my other two repos concerning this one.
 
 ## Contents
 
