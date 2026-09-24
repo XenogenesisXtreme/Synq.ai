@@ -286,6 +286,7 @@ The following boundaries are intentional:
 - `06-build-roadmap.md` — staged implementation plan from foundation to open-source release.
 - `07-open-questions.md` — decisions still required before implementation.
 - `08-deployment-modes-and-provider-credentials.md` — managed cloud, institutional, operator self-hosting, and local-AI considerations.
+- `09-rerouting-model-spec.md` — dynamic multi-model rerouting proxy, prompt parameters, heuristics, and failover matrix.
 
 The repository is intentionally documentation-first. The design files establish the product vocabulary, data boundaries, user experience, service responsibilities, and implementation order before code is introduced.
 
