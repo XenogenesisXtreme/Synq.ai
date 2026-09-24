@@ -14,6 +14,7 @@
 - [Notebook content model](#notebook-content-model)
 - [Hosting and client distribution](#hosting-and-client-distribution)
 - [System architecture](#system-architecture)
+- [Dynamic Multi-Model Routing Architecture](#dynamic-multi-model-routing-architecture)
 - [Security, privacy, and ownership](#security-privacy-and-ownership)
 - [Extensibility principles](#extensibility-principles)
 - [Repository guide](#repository-guide)
@@ -191,6 +192,67 @@ Browser: Synq Workspace       Desktop: Tauri + React
 The client authenticates the learner and sends validated requests to Synq.ai serverless routes. The server verifies ownership, applies input limits and quotas, stores source and processing state in Supabase, calls Gemini with the versioned Master Pedagogy contract, validates the structured result, and saves the notebook. When audio is requested, the server prepares a spoken script, calls ElevenLabs, stores the generated audio in private Supabase Storage, and returns secure playback metadata. Supabase Row Level Security ensures that a learner can access only permitted records.
 
 Processing should be represented by durable states such as `pending`, `processing`, `completed`, and `failed`. This makes progress visible, supports retries, prevents confusing duplicate notebooks, and allows the implementation to move from a synchronous serverless request to a background job when necessary.
+
+## Dynamic Multi-Model Routing Architecture
+
+Synq.ai employs a specialized, pluggable 4-tier multi-model orchestration engine designed to balance context window depth, rigorous cognitive reasoning, sub-second interactive dialogue, and fault-tolerant inference availability.
+
+Instead of binding product features to a single monolithic LLM, all inference requests are abstracted through the `MPSModelRouter` service (`backend/services/MPSModelRouter.ts`). Higher-level services such as `MPSContractEnforcer` and `SocraticAgentLoop` communicate exclusively via structured tier contracts.
+
+### The 4-Tier Multi-Model Engine
+
+| Tier | Primary Provider & Model | Role & Workload | Latency & SLA Target | Fallback Provider |
+|---|---|---|---|---|
+| **1. Ingestion** (`ingestion`) | **Google Gemini 1.5 Flash** | Massive-context transcript parsing, slide extraction, multimodal document indexing, and raw lecture capture buffering. | High throughput, large window (>1M tokens) | Exponential backoff retry |
+| **2. Reasoning** (`reasoning`) | **DeepSeek R1** (via OpenRouter) | Deep pedagogical deconstruction, conceptual structuring, cognitive scaffolding, and contract-enforced JSON compilation. | High reasoning density, structured JSON | **Groq LLaMA 3.3 70B Speculative Decoding** |
+| **3. Interactivity** (`interactivity`) | **Groq LLaMA 3.3 70B Versatile** | Real-time conversational Socratic tutoring, targeted clarification, dynamic knowledge check evaluation, and inline gap tracking. | Sub-500ms real-time conversational loop | Exponential backoff retry |
+| **4. Fallback** (`fallback`) | **Cerebras LLaMA 3.3 70B** | Hardware-accelerated ultra-high token rate emergency fallback and circuit breaker recovery tier. | Instantaneous wafer-scale failover | Primary cluster recovery |
+
+### Dynamic Routing Flow & Circuit Breaker
+
+```text
+       Raw Lecture / Chat Prompt
+                   |
+                   v
+       +-----------------------+
+       |    MPSModelRouter     |
+       +-----------------------+
+        /          |          \
+       /           |           \
+ [ingestion]  [reasoning]   [interactivity]
+      |            |                |
+      v            v                v
+ Gemini 1.5   DeepSeek R1       Groq 70B
+   Flash     (OpenRouter)      (Versatile)
+      |            |                |
+   (retry)      (fail)           (fail)
+      |            v                v
+      |        Groq 70B          Cerebras
+      |       (SpecDec)          Fallback
+      v            |                |
+      +------------+----------------+
+                   |
+         Circuit Breaker Guard
+         (Exponential Backoff)
+                   |
+                   v
+       Validated MPS Result / Stream
+```
+
+### Core Orchestration Services
+
+1. **`MPSModelRouter` (`backend/services/MPSModelRouter.ts`)**
+   - **Pluggable Model Abstraction:** Implements provider configurations (`RouterConfig`) for OpenAI-compatible endpoints with dynamic tier resolution.
+   - **Circuit Breaker & Backoff:** Executes model requests with autonomous failover across ordered provider pools, applying exponential backoff delay (`Math.pow(2, retryCount) * 1000ms`) on failure before escalating or exhausting a tier.
+   - **Fault Isolation:** Shields client applications and domain modules from upstream API changes, rate limits, or transient outages.
+
+2. **`MPSContractEnforcer` (`backend/services/MPSContractEnforcer.ts`)**
+   - **Schema Contract Guarantee:** Compiles unorganized lecture transcripts and study notes into strictly typed pedagogical blocks (`definition`, `explanation`, `misconception`, `knowledge_check`, `summary`).
+   - **Deterministic Validation:** Operates with near-zero temperature (`0.1`) and JSON object formatting, validating every block's required fields and conceptual integrity before passing data to persistence or the UI layer.
+
+3. **`SocraticAgentLoop` (`backend/services/SocraticAgentLoop.ts`)**
+   - **Sub-500ms Tutor Loop:** Drives rapid, 2-sentence conversational interactions tailored to active student knowledge gaps.
+   - **Dynamic Gap Tracking:** Appends and parses inline gap tokens (`|GAPS: gap1, gap2|`), enabling the mastery engine to update the student's learning graph in real time without secondary evaluation overhead.
 
 ## Security, privacy, and ownership
 
