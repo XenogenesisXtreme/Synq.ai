@@ -32,7 +32,7 @@ This file is a durable handoff aid, not a substitute for Git history, tests, iss
 
 ## Current status
 
-Planning is approved and the project is ready to begin implementation. The first build is a browser-first vertical slice, not the full product.
+Planning is approved and the project is ready to begin implementation. The first build is a browser-first vertical slice, not the full product. Managed Webdev initialization has been attempted twice and is currently blocked at the platform's internal `git_push` stage; no managed project or preview is ready yet.
 
 The target first slice is:
 
@@ -54,10 +54,11 @@ Nothing beyond this core loop should take priority until it works on a real lect
 - Updated `03-database-design.md`, `06-build-roadmap.md`, and `07-open-questions.md` to reflect those decisions.
 - Added `12-pre-build-decisions-and-notebook-contract.md` as the authoritative decision and schema record.
 - Branch `updated` was pushed to GitHub. The latest planning commit before this file is `f08731c`.
+- Attempted managed Webdev initialization for `synqai`; both attempts failed at `git_push` and the project attempt was released. The GitHub checkout was restored cleanly from `origin/updated`; the failed-init copy is retained outside the repository at `/home/ubuntu/Synq.ai-after-init-failure` for diagnosis.
 
 ## Next concrete task
 
-Start implementation with a contract-first browser vertical slice:
+After managed Webdev initialization succeeds, start implementation with a contract-first browser vertical slice:
 
 1. Inspect the existing repository structure and choose the web app foundation.
 2. Add a fixture notebook using the adopted `LectureNote` shape.
@@ -114,6 +115,7 @@ No product-scope blocker is currently approved. Before public launch, implementa
 - a representative 90-minute generation-duration benchmark;
 - the final provider-secret deployment configuration;
 - evaluator-owned golden-set materials and scoring workflow.
+- managed Webdev initialization must complete successfully before using its preview or managed checkpoint flow; do not treat the released partial scaffold as a ready project.
 
 Do not silently resolve a decision that materially changes scope, privacy, cost, security, schema compatibility, or user experience. Record the decision here and in the relevant planning document.
 
@@ -126,4 +128,4 @@ At each handoff, record:
 - whether the working tree is clean;
 - the next task and any blocker.
 
-**Current handoff:** This context file is being added before implementation begins. Update this section after the first build step is completed.
+**Current handoff:** Implementation has not started because managed Webdev initialization failed twice at `git_push`. The repository is restored and clean on `updated` at `aa045fb`; the next session should resolve or retry the managed initialization through the Webdev tool before creating application files.
