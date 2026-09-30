@@ -35,3 +35,13 @@ Document Supabase and Vercel setup, protected provider-secret configuration, des
 ## Delivery rule
 
 Each phase should produce a usable, testable increment. Do not introduce advanced mastery algorithms, collaboration, or broad extension permissions before the core desktop notebook loop is reliable.
+
+## Approved build-order amendment
+
+The first implementation is browser-first rather than Tauri-first. Phase 1 exits only when one real lecture completes the validated vertical slice:
+
+```text
+pasted text or .txt/.md upload → source → Master Pedagogy → stored notebook → rendered Workspace
+```
+
+The notebook must use the Lecture Notebook AI-compatible `LectureNote` contract recorded in `12-pre-build-decisions-and-notebook-contract.md`, and it must clear the golden-set quality gate in `09-quality-evaluation-plan.md`. Tauri packaging, audio, Synq Mastery, Code Bar, and the Extension remain sequenced after that gate.

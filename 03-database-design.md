@@ -31,6 +31,12 @@ A notebook should not be stored only as one large markdown string. The canonical
 
 A conceptual `notebook_blocks` record contains `id`, `notebook_id`, `block_type`, `position`, `title`, `content_json`, `difficulty`, `source_reference_json`, `created_at`, and `updated_at`. The JSON payload should be validated against a versioned block schema before insertion.
 
+## Adopted v1 notebook contract
+
+For the first build, the learner-facing canonical payload follows the existing Lecture Notebook AI website's `LectureNote` shape rather than inventing a new block-only format. It includes `title`, `course`, `date`, `overview`, `processingStatus`, `learningObjectives`, timestamped `sections`, `visualHighlights`, `keyTerms`, `reviewQuestions`, `examReview`, `uncertainItems`, and timestamped `transcript` lines. Section payloads preserve definitions, formulas, worked examples, teacher emphasis, common mistakes, linked visuals, and optional intuition, importance, steps, self-checks, and connections.
+
+The complete TypeScript contract and compatibility rules are recorded in `12-pre-build-decisions-and-notebook-contract.md`. Supabase may normalize sections, transcript segments, assessments, and future mastery records into child tables, but must preserve the validated canonical payload and its stable IDs. Markdown and HTML remain derived exports, not the source of truth.
+
 ## Suggested status values
 
 Lecture sources and processing runs should use `pending`, `processing`, `completed`, and `failed`. Podcasts should use `queued`, `generating`, `ready`, and `failed`. Assessment attempts should preserve whether an answer was `submitted`, `evaluated`, or `invalidated`.

@@ -49,3 +49,17 @@ The initial deployment is managed Synq.ai Cloud accessed through browser and dow
 ## Collaboration
 
 Personal ownership is the initial assumption. If shared notebooks are later introduced, design memberships and roles explicitly rather than weakening individual Row Level Security policies.
+
+## Decisions adopted for the first build
+
+The recommendations in this document are now resolved for the first build. The authoritative decision record is `12-pre-build-decisions-and-notebook-contract.md`.
+
+- **Reference notebook:** adopt the `LectureNote` contract from the website in `lecture-notebook-ai-mvp/client/src/lib/lecture.ts`, including timestamped transcript lines, timestamped sections, definitions, formulas, worked examples, teacher emphasis, common mistakes, visual highlights, review material, uncertainty markers, and transcript-to-section alignment.
+- **Initial input:** pasted text plus `.txt`/`.md` upload. Defer audio/video transcription.
+- **Generation:** start synchronously through a server-side Fluid Compute route, with a 90-minute lecture benchmark; move to Inngest or Trigger.dev if the execution ceiling is not reliable.
+- **Desktop tokens:** use Tauri Stronghold for the Supabase refresh token and PKCE for OAuth; access tokens remain memory-only.
+- **Sync:** no full offline-editing promise in the first slice; show sync-pending state and add a local queue only if required.
+- **Privacy:** retain sources and notebooks until user deletion, avoid raw-content logging, and require export/deletion before public launch.
+- **Audio:** on demand, one default voice and language initially, cached per notebook version.
+- **Mastery:** transparent quiz/review rules first; defer opaque personalization.
+- **Collaboration, Extension, self-hosting, BYOK, and local AI:** explicitly deferred.
