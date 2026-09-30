@@ -41,7 +41,7 @@ Use a 15–20 item golden set and score factual accuracy, faithfulness, pedagogi
 
 ## Current status
 
-Branch separation is complete. The `build` branch is based on `main` and contains no planning documents. The first implementation step has not started.
+Branch separation is complete. The `build` branch is based on `main` and contains no numbered planning documents. The `planning` branch retains the complete planning package. The first implementation step has not started.
 
 ## Next concrete task
 
@@ -54,3 +54,5 @@ Managed Webdev initialization was attempted twice and failed at the platform's i
 ## Validation and commit
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
+
+**Latest handoff:** Branch separation was validated with `git ls-tree` and pushed. Current branch is `build` at commit `cafeeb3`; the working tree is clean. The numbered planning documents are on `planning` at `4135b31`. No application code has been added yet because managed Webdev initialization failed twice at its internal `git_push` stage.
