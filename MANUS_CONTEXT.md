@@ -49,10 +49,10 @@ Initialize the browser app foundation in this branch, then add the `LectureNote`
 
 ## Blockers
 
-Managed Webdev initialization was attempted twice and failed at the platform's internal `git_push` stage. No managed project or preview is ready. Do not claim managed initialization succeeded or silently switch hosting mode; retry through the Webdev flow or report the blocker.
+Managed Webdev initialization has now been attempted three times and failed at the platform's internal `git_push` stage each time. No managed project or preview is ready. Do not claim managed initialization succeeded or silently switch hosting mode; report the blocker and wait for the Webdev runtime to recover.
 
 ## Validation and commit
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
 
-**Latest handoff:** Branch separation was validated with `git ls-tree` and pushed. Current branch is `build` at commit `cafeeb3`; the working tree is clean. The numbered planning documents are on `planning` at `4135b31`. No application code has been added yet because managed Webdev initialization failed twice at its internal `git_push` stage.
+**Latest handoff:** Branch separation was validated with `git ls-tree` and pushed. Current branch is `build`; the working tree is clean. The numbered planning documents are on `planning` at `4135b31`. No application code has been added yet because managed Webdev initialization failed three times at its internal `git_push` stage, including the retry requested on September 30, 2026.
