@@ -9,7 +9,7 @@
 - **Repository:** https://github.com/XenogenesisXtreme/Synq.ai
 - **Planning branch URL:** https://github.com/XenogenesisXtreme/Synq.ai/tree/planning
 
-The planning documents are intentionally kept on `planning`, not duplicated into the build branch. Read them from the planning branch when needed, especially `12-pre-build-decisions-and-notebook-contract.md`.
+The planning documents are intentionally kept on `planning`, not duplicated into the build branch. Read them from the planning branch when needed, especially `12-pre-build-decisions-and-notebook-contract.md`. The build branch should contain implementation files plus this handoff file, not the numbered planning documents.
 
 ## Approved implementation target
 
