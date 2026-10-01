@@ -41,11 +41,11 @@ Use a 15–20 item golden set and score factual accuracy, faithfulness, pedagogi
 
 ## Current status
 
-Branch separation is complete. The `build` branch is based on `main` and contains no numbered planning documents. The `planning` branch retains the complete planning package. The first implementation step has not started.
+The browser foundation is now present on `build`: Vite/React scripts, the `/manus-routes.json` route manifest, a fixture-backed Workspace notebook view, and a Zod-backed `LectureNote` contract with tests. No provider or persistence route has been added yet; the fixture remains the data source for this first increment.
 
 ## Next concrete task
 
-Initialize the browser app foundation in this branch, then add the `LectureNote` fixture and schema validation before connecting any provider.
+Connect the Workspace to authenticated source/library state and add the server-side generation procedure while preserving the validated `LectureNote` contract.
 
 ## Blockers
 
@@ -55,4 +55,4 @@ Managed Webdev initialization has now been attempted three times and failed at t
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
 
-**Latest handoff:** Branch separation was validated with `git ls-tree` and pushed. Current branch is `build`; the working tree is clean. The numbered planning documents are on `planning` at `4135b31`. No application code has been added yet because managed Webdev initialization failed three times at its internal `git_push` stage, including the retry requested on September 30, 2026.
+**Latest handoff:** Added the browser foundation and fixture-backed notebook view on `build`. Validation passes with `npm test` (3 tests), `npm run check`, and `npm run build`. Managed Webdev initialization remains blocked at the platform internal `git_push` stage; no managed preview or hosting mode change is claimed. Commit this handoff together with the implementation.
