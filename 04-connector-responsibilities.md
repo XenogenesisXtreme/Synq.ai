@@ -8,17 +8,27 @@ Each connector should perform one kind of work and return a small, stable contra
 
 | Connector or runtime | Job | Credential model | Must not own |
 |---|---|---|---|
-| Tauri + Vite + React | Desktop client, local settings, UI, and native secure-key bridge | No provider credential ownership in the UI bundle | Pedagogical truth, cloud ownership, or raw provider secrets in ordinary storage |
+| Tauri + Vite + React | Desktop client, local settings, UI, and native desktop capabilities | No provider credential ownership in the UI bundle | Pedagogical truth, cloud ownership, or raw provider secrets in ordinary storage |
 | Google Gemini | Transform lecture material into pedagogical structures and learning activities | Synq.ai-managed server credential | Authentication, ownership, storage, or direct uncontrolled browser access |
+| OpenRouter | Provide a model-routing gateway for approved reasoning models such as DeepSeek or Llama | Synq.ai-managed server credential | Canonical notebook state, user identity, or provider-independent routing policy |
+| Groq | Provide a low-latency route for eligible Socratic turns and knowledge checks | Synq.ai-managed server credential | Long-term mastery truth or unrestricted background execution |
+| Cerebras or compatible fallback | Provide an approved fallback reasoning route during primary-provider failure | Synq.ai-managed server credential | Silent schema changes or bypassing validation |
 | Supabase Auth and Database | Identity, PostgreSQL persistence, RLS, and cloud synchronization | Synq.ai-managed project configuration | Pedagogical reasoning or audio synthesis |
 | Supabase Storage | Private audio and learning-asset storage | Synq.ai-managed project configuration | Access decisions without application and storage policies |
 | ElevenLabs | Convert an approved audio-ready script into speech | Synq.ai-managed server credential | Notebook structure, mastery state, or user permissions |
 | Vercel | Host the cloud application and secure serverless routing intermediary | Synq.ai deployment secrets | Long-term data ownership or provider-specific product logic |
 | Synq Extension | Capture permitted browser context and submit it to Synq.ai | No provider API keys | Authoritative learning records or secret storage |
+| Dynamic MPS Router | Select adapters, enforce task policy, validate output, retry, and fail over | Uses server-side provider configuration | Provider-specific response formats or direct client access |
 
 ## Gemini contract
 
 Input should include the source transcript, a versioned Master Pedagogy instruction set, desired learner context when available, and output constraints. Output should be validated structured content, not blindly trusted markdown. The response should preserve uncertainty and source references when the model cannot establish a claim confidently.
+
+## Dynamic MPS Router contract
+
+The router should classify work such as source ingestion, notebook generation, assessment generation, cheat-sheet compression, Socratic turns, answer evaluation, and code assistance. It should select a provider based on context size, reasoning needs, latency target, schema capability, current health, rate limits, and policy configuration. It should use bounded exponential backoff with jitter, avoid fallback loops, and return normalized results with sanitized routing metadata.
+
+If DeepSeek is selected through OpenRouter, the implementation needs an OpenRouter adapter rather than a separate DeepSeek connector. A direct DeepSeek adapter is only needed if Synq.ai later calls a DeepSeek-hosted API without OpenRouter.
 
 ## Supabase contract
 

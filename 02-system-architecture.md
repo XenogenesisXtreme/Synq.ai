@@ -14,7 +14,11 @@ Browser or Tauri desktop client
   v
 Vercel serverless routing function
   |  request validation and provider relay
-  +--> Gemini: pedagogical transformation
+  +--> Dynamic MPS Router: task-based model selection
+  |      +--> Gemini: ingestion and long-context processing
+  |      +--> OpenRouter: selected DeepSeek/Llama reasoning route
+  |      +--> Groq: fast Socratic interaction
+  |      +--> Cerebras or compatible fallback
   +--> ElevenLabs: audio synthesis when requested
   |
   v
@@ -39,12 +43,16 @@ Master Pedagogy contract and Gemini processing
 Structured notebook blocks + rendered Markdown
         |
         +--> quizzes, cheat sheet, mastery records
-        +--> optional ElevenLabs audio recap
++--> optional ElevenLabs audio recap
 ```
+
+The client authenticates the learner and sends validated requests to Synq.ai serverless routes. The server verifies ownership, applies input limits and quotas, stores source and processing state in Supabase, and sends language tasks to the provider-neutral Dynamic MPS Router. The router selects an approved model adapter based on task type, context size, latency needs, structured-output requirements, and provider health. It validates the result against the versioned Master Pedagogy contract before the application saves the notebook.
+
+OpenRouter should be treated as the connector when Synq.ai selects a DeepSeek model through OpenRouter. DeepSeek is then a model route inside that adapter, not a second connector. A separate DeepSeek adapter is needed only if Synq.ai later calls a DeepSeek-hosted API directly.
 
 ## Service boundaries
 
-The Tauri client owns the desktop interface, local settings, and user-initiated requests. Vercel validates and routes requests but does not become the source of truth for product data. Supabase owns identity, synchronization, durable records, ownership, and private files. Gemini owns language transformation and pedagogical generation. ElevenLabs owns text-to-speech. The application domain layer owns orchestration, validation, workflow state, and the Master Pedagogy contract.
+The Tauri client owns the desktop interface, local settings, and user-initiated requests. Vercel validates and routes requests but does not become the source of truth for product data. Supabase owns identity, synchronization, durable records, ownership, and private files. Provider adapters own external API details. The Dynamic MPS Router owns task-based selection, retries, fallback, and normalized results. Gemini, OpenRouter, Groq, and compatible fallback providers execute assigned model tasks. ElevenLabs owns text-to-speech. The application domain layer owns orchestration, validation, workflow state, and the Master Pedagogy contract.
 
 The Synq Extension remains a later capture client. It should submit to the same ingestion contract as the desktop client and must never contain provider keys.
 

@@ -2,7 +2,7 @@
 
 > **A cloud-hosted, downloadable AI learning workspace that turns lectures and study questions into guided, interactive learning.**
 
-**Status:** Product and architecture planning. This repository currently contains design documents only. Application implementation, production deployment, and public client downloads will follow design approval. For more info, check out my other two repos concerning this one.
+**Status:** Product and architecture planning. This repository currently contains design documents only. Application implementation, production deployment, and public client downloads will follow design approval.
 
 ## Contents
 
@@ -14,7 +14,6 @@
 - [Notebook content model](#notebook-content-model)
 - [Hosting and client distribution](#hosting-and-client-distribution)
 - [System architecture](#system-architecture)
-- [Dynamic Multi-Model Routing Architecture](#dynamic-multi-model-routing-architecture)
 - [Security, privacy, and ownership](#security-privacy-and-ownership)
 - [Extensibility principles](#extensibility-principles)
 - [Repository guide](#repository-guide)
@@ -50,6 +49,7 @@ The first release is not intended to replace teachers, verify every academic cla
 | **Synq Mastery** | The progress, assessment, knowledge-gap, and revision layer. |
 | **Synq Extension** | The planned browser extension for sending permitted browser and lecture context into Synq.ai. |
 | **Code Bar** | The coding-focused workspace for understanding, writing, testing, and revising code. |
+| **Dynamic MPS Router** | The server-side orchestration layer that selects, validates, retries, and fails over between approved model providers. |
 | **Notebook** | The structured learning document generated from a source or an MPS session. |
 | **Knowledge check** | A short interaction that asks the learner to recall, explain, compare, or apply a concept. |
 
@@ -150,7 +150,11 @@ The primary Synq.ai service is cloud hosted. The planned deployment is:
 | Identity | Supabase Auth | Accounts, sessions, and authenticated user identity. |
 | Database | Supabase PostgreSQL | User-owned sources, notebooks, blocks, quizzes, mastery, and processing states. |
 | File storage | Supabase Storage | Private audio and other user-owned learning assets. |
-| Pedagogical engine | Google Gemini | Transform validated source content through Master Pedagogy. |
+| MPS ingestion route | Google Gemini | Normalize long-context source material and prepare source-aware input. |
+| MPS reasoning route | OpenRouter | Provide an approved DeepSeek or Llama model route for complex pedagogical transformation. |
+| MPS interaction route | Groq | Provide an eligible low-latency route for Socratic turns and knowledge checks. |
+| MPS fallback route | Cerebras or compatible provider | Continue approved work when a primary reasoning route is unavailable. |
+| Routing layer | Dynamic MPS Router | Select providers, enforce task policy, validate output, retry, and fail over. |
 | Audio engine | ElevenLabs | Generate optional spoken recaps from audio-ready scripts. |
 | Desktop client | Tauri + Vite + React | Package the workspace for Windows, macOS, and Linux. |
 
@@ -179,80 +183,22 @@ Browser: Synq Workspace       Desktop: Tauri + React
               \                     /
                v                   v
                  Synq.ai cloud API on Vercel
-                 |       |        |
-                 v       v        v
-              Supabase  Gemini  ElevenLabs
-              auth/db   MPS AI  audio recap
+                 |       |        |        |
+                 v       v        v        v
+              Supabase MPS Router ElevenLabs
+              auth/db  Gemini/OpenRouter audio
+                       Groq/Cerebras
                  |
                  v
         notebooks, sources, quizzes,
         audio references, mastery data
 ```
 
-The client authenticates the learner and sends validated requests to Synq.ai serverless routes. The server verifies ownership, applies input limits and quotas, stores source and processing state in Supabase, calls Gemini with the versioned Master Pedagogy contract, validates the structured result, and saves the notebook. When audio is requested, the server prepares a spoken script, calls ElevenLabs, stores the generated audio in private Supabase Storage, and returns secure playback metadata. Supabase Row Level Security ensures that a learner can access only permitted records.
+The client authenticates the learner and sends validated requests to Synq.ai serverless routes. The server verifies ownership, applies input limits and quotas, stores source and processing state in Supabase, and sends each MPS task through the Dynamic MPS Router. The router selects a provider based on task type, context size, latency needs, structured-output support, and provider health. It validates the result against the versioned Master Pedagogy contract before saving the notebook. When audio is requested, the server prepares a spoken script, calls ElevenLabs, stores the generated audio in private Supabase Storage, and returns secure playback metadata. Supabase Row Level Security ensures that a learner can access only permitted records.
+
+If DeepSeek is selected through OpenRouter, OpenRouter is the required connector and DeepSeek is the selected model route. A separate DeepSeek connector is unnecessary unless Synq.ai later calls DeepSeek directly. The provider layer remains replaceable so that free-tier limits, model availability, privacy terms, and operational costs do not leak into the notebook or mastery interfaces.
 
 Processing should be represented by durable states such as `pending`, `processing`, `completed`, and `failed`. This makes progress visible, supports retries, prevents confusing duplicate notebooks, and allows the implementation to move from a synchronous serverless request to a background job when necessary.
-
-## Dynamic Multi-Model Routing Architecture
-
-Synq.ai employs a specialized, pluggable 4-tier multi-model orchestration engine designed to balance context window depth, rigorous cognitive reasoning, sub-second interactive dialogue, and fault-tolerant inference availability.
-
-Instead of binding product features to a single monolithic LLM, all inference requests are abstracted through the `MPSModelRouter` service (`backend/services/MPSModelRouter.ts`). Higher-level services such as `MPSContractEnforcer` and `SocraticAgentLoop` communicate exclusively via structured tier contracts.
-
-### The 4-Tier Multi-Model Engine
-
-| Tier | Primary Provider & Model | Role & Workload | Latency & SLA Target | Fallback Provider |
-|---|---|---|---|---|
-| **1. Ingestion** (`ingestion`) | **Google Gemini 1.5 Flash** | Massive-context transcript parsing, slide extraction, multimodal document indexing, and raw lecture capture buffering. | High throughput, large window (>1M tokens) | Exponential backoff retry |
-| **2. Reasoning** (`reasoning`) | **DeepSeek R1** (via OpenRouter) | Deep pedagogical deconstruction, conceptual structuring, cognitive scaffolding, and contract-enforced JSON compilation. | High reasoning density, structured JSON | **Groq LLaMA 3.3 70B Speculative Decoding** |
-| **3. Interactivity** (`interactivity`) | **Groq LLaMA 3.3 70B Versatile** | Real-time conversational Socratic tutoring, targeted clarification, dynamic knowledge check evaluation, and inline gap tracking. | Sub-500ms real-time conversational loop | Exponential backoff retry |
-| **4. Fallback** (`fallback`) | **Cerebras LLaMA 3.3 70B** | Hardware-accelerated ultra-high token rate emergency fallback and circuit breaker recovery tier. | Instantaneous wafer-scale failover | Primary cluster recovery |
-
-### Dynamic Routing Flow & Circuit Breaker
-
-```text
-       Raw Lecture / Chat Prompt
-                   |
-                   v
-       +-----------------------+
-       |    MPSModelRouter     |
-       +-----------------------+
-        /          |          \
-       /           |           \
- [ingestion]  [reasoning]   [interactivity]
-      |            |                |
-      v            v                v
- Gemini 1.5   DeepSeek R1       Groq 70B
-   Flash     (OpenRouter)      (Versatile)
-      |            |                |
-   (retry)      (fail)           (fail)
-      |            v                v
-      |        Groq 70B          Cerebras
-      |       (SpecDec)          Fallback
-      v            |                |
-      +------------+----------------+
-                   |
-         Circuit Breaker Guard
-         (Exponential Backoff)
-                   |
-                   v
-       Validated MPS Result / Stream
-```
-
-### Core Orchestration Services
-
-1. **`MPSModelRouter` (`backend/services/MPSModelRouter.ts`)**
-   - **Pluggable Model Abstraction:** Implements provider configurations (`RouterConfig`) for OpenAI-compatible endpoints with dynamic tier resolution.
-   - **Circuit Breaker & Backoff:** Executes model requests with autonomous failover across ordered provider pools, applying exponential backoff delay (`Math.pow(2, retryCount) * 1000ms`) on failure before escalating or exhausting a tier.
-   - **Fault Isolation:** Shields client applications and domain modules from upstream API changes, rate limits, or transient outages.
-
-2. **`MPSContractEnforcer` (`backend/services/MPSContractEnforcer.ts`)**
-   - **Schema Contract Guarantee:** Compiles unorganized lecture transcripts and study notes into strictly typed pedagogical blocks (`definition`, `explanation`, `misconception`, `knowledge_check`, `summary`).
-   - **Deterministic Validation:** Operates with near-zero temperature (`0.1`) and JSON object formatting, validating every block's required fields and conceptual integrity before passing data to persistence or the UI layer.
-
-3. **`SocraticAgentLoop` (`backend/services/SocraticAgentLoop.ts`)**
-   - **Sub-500ms Tutor Loop:** Drives rapid, 2-sentence conversational interactions tailored to active student knowledge gaps.
-   - **Dynamic Gap Tracking:** Appends and parses inline gap tokens (`|GAPS: gap1, gap2|`), enabling the mastery engine to update the student's learning graph in real time without secondary evaluation overhead.
 
 ## Security, privacy, and ownership
 
@@ -286,6 +232,8 @@ The following boundaries are intentional:
 - `06-build-roadmap.md` — staged implementation plan from foundation to open-source release.
 - `07-open-questions.md` — decisions still required before implementation.
 - `08-deployment-modes-and-provider-credentials.md` — managed cloud, institutional, operator self-hosting, and local-AI considerations.
+- `09-dynamic-mps-routing.md` — provider-neutral model selection, schema validation, retry, failover, and Socratic interaction routing.
+- `09-dynamic-mps-routing.md` — provider-neutral model selection, schema validation, retry, failover, and Socratic interaction routing.
 
 The repository is intentionally documentation-first. The design files establish the product vocabulary, data boundaries, user experience, service responsibilities, and implementation order before code is introduced.
 

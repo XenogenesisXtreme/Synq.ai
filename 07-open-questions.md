@@ -10,6 +10,18 @@ The example notebook and interface have not yet been included in this workspace.
 
 The product direction now assumes Synq.ai-managed Gemini and ElevenLabs credentials. The implementation must choose protected Vercel deployment secrets or an equivalent server-side secret manager. The threat model should cover secret rotation, provider outage, account abuse, quota exhaustion, and access separation between application operators.
 
+## Dynamic MPS provider set
+
+Decide which provider adapters are approved for the first implementation. The proposed design uses Gemini for ingestion, OpenRouter for a DeepSeek or Llama reasoning route, Groq for fast interaction, and Cerebras or another compatible provider as fallback. These are candidates rather than guaranteed free infrastructure. Provider limits, privacy terms, commercial usage, structured-output support, and operational cost must be verified before activation.
+
+## OpenRouter versus direct DeepSeek
+
+If DeepSeek is selected through OpenRouter, implement one OpenRouter adapter and configure the DeepSeek model identifier inside it. Add a separate DeepSeek adapter only if the product later calls a DeepSeek-hosted API directly. This decision avoids duplicating provider logic while keeping the model route replaceable.
+
+## Latency target
+
+Treat sub-500ms Socratic interaction as an optimization target for eligible short requests, not a guarantee. Define the acceptable end-to-end budget across network, model generation, validation, persistence, and rendering. Define what the interface does when a response exceeds that budget.
+
 ## Serverless routing with managed credentials
 
 The preferred default is a validated server-side relay that uses protected deployment secrets and never exposes provider keys to clients. Direct calls from browser or desktop clients are out of scope for the ordinary user experience because they would expose credentials and bypass centralized policy.

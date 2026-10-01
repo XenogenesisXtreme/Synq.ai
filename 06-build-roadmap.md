@@ -12,9 +12,9 @@ Create the Tauri + Vite + React application, configure cross-platform packaging,
 
 Implement user-provided text submission, optional file upload, source persistence, processing states, timestamp preservation where available, notebook generation, structured block rendering, notebook navigation, and basic editing or annotation. Add observability around request duration, failures, retries, and sync status.
 
-## Phase 3: Master Pedagogy contract
+## Phase 3: Master Pedagogy contract and model router
 
-Finalize the notebook block schema, required sections, source-reference format, prompt versioning, output validation, and generation rules before connecting Gemini. Test the contract against text-only MPS sessions and lecture-derived sessions.
+Finalize the notebook block schema, required sections, source-reference format, prompt versioning, output validation, and generation rules before connecting any model. Implement the provider-neutral `MPSModelRouter` boundary, beginning with a Gemini ingestion adapter and adding OpenRouter, Groq, or Cerebras only after their provider policies and limits are reviewed. Test primary routes, malformed output, rate limits, retries, and bounded failover against text-only MPS sessions and lecture-derived sessions.
 
 ## Phase 4: Audio recaps
 

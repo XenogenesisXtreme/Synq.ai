@@ -8,8 +8,12 @@ synq-ai/
 ├── package.json                       # Tauri/Vite/React scripts and dependencies
 ├── README.md                          # Product, setup, and self-hosting documentation
 ├── api/                               # Vercel serverless routing functions
-│   ├── process-notes.js              # Gemini pedagogical processing route
+│   ├── process-notes.js              # Dynamic MPS Router processing route
 │   └── generate-audio.js             # ElevenLabs audio synthesis route
+├── services/                          # Server-side provider and domain services
+│   ├── mps-router/                    # Dynamic provider selection and failover
+│   ├── providers/                     # Gemini, OpenRouter, Groq, Cerebras adapters
+│   └── contracts/                     # Validated MPS and notebook contracts
 ├── src-tauri/                         # Tauri Rust wrapper and native capabilities
 │   ├── tauri.conf.json
 │   └── src/
