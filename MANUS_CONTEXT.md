@@ -32,7 +32,7 @@ This file is a durable handoff aid, not a substitute for Git history, tests, iss
 
 ## Current status
 
-Planning is approved and the project is ready to begin implementation. The `planning` branch is the active handoff branch; there is no `plan` branch. It contains the approved planning set, the existing Dynamic MPS routing specification, and an early orchestration prototype. The full Synq.ai application and managed Webdev project are not ready yet.
+Planning is approved and the project is now in active implementation. The `planning` branch remains the durable context/handoff branch; all application implementation belongs on `build`, and `main` remains reserved for the completed product. This branch contains the approved planning set, the Dynamic MPS routing specification, the early orchestration prototype, this handoff, and the authoritative full implementation PDF at `Synq.aifullproductimplementationplan.pdf`.
 
 The target first slice is:
 
@@ -55,7 +55,7 @@ Nothing beyond this core loop should take priority until it works on a real lect
 - Added `12-pre-build-decisions-and-notebook-contract.md` as the authoritative decision and schema record.
 - Branch `planning` was pushed to GitHub and is the branch to use for planning and handoff commits. The current branch tip before this handoff update is `4135b31`.
 - The branch already contains `09-rerouting-model-spec.md`, `backend/services/MPSModelRouter.ts`, `backend/services/MPSContractEnforcer.ts`, and `backend/services/SocraticAgentLoop.ts` as an orchestration prototype and specification. These files are not yet production-ready and still require contract tests, provider verification, error hardening, and integration into the application.
-- Attempted managed Webdev initialization for `synqai`; both attempts failed at `git_push` and the project attempt was released. The GitHub checkout was restored cleanly from `origin/updated`; the failed-init copy is retained outside the repository at `/home/ubuntu/Synq.ai-after-init-failure` for diagnosis.
+- Attempted managed Webdev initialization for `synqai`; attempts failed at the platform internal `git_push` stage and no managed preview should be claimed. The repository Vite preview is usable for local/public development, but managed hosting remains a blocker.
 
 ## Next concrete task
 
@@ -78,6 +78,10 @@ Do not begin with Tauri packaging, audio, Extension work, collaboration, advance
 - Start generation synchronously through a server-side Fluid Compute route.
 - Benchmark a representative 90-minute lecture; use Inngest or Trigger.dev if the execution ceiling is unreliable.
 - Persist durable processing states: `pending`, `processing`, `completed`, `failed`.
+- Supabase is now the approved database/auth/storage choice instead of the earlier managed MySQL-compatible assumption. Use Supabase Postgres with Drizzle or the documented server client, RLS, and private Storage buckets.
+- The next Manus account has provider and Supabase keys available in its separate secure account/environment. Do not request or paste secret values into this repository, handoff, issue, or chat. Configure them through the secure environment/connector mechanism using `.env.example` as the variable contract.
+- Required Supabase variables are `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only), and `DATABASE_URL` (server-only).
+- Required provider variables when live generation/audio is enabled are `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`, and `ELEVENLABS_API_KEY`; keep all server-side and use mock mode locally when absent.
 - Gemini and ElevenLabs credentials are server-side secrets only; never expose them to clients or commit them.
 - The Dynamic MPS Router is provider-neutral. Use OpenRouter as the connector when selecting a DeepSeek model through OpenRouter; a separate DeepSeek connector is unnecessary unless Synq.ai later calls DeepSeek directly.
 - Candidate routing tiers are Gemini for ingestion and long context, OpenRouter for deep reasoning, Groq for fast Socratic interaction, and Cerebras or another approved compatible provider for fallback. Free-tier limits, privacy terms, commercial usage, and latency must be verified before activation.
@@ -134,4 +138,4 @@ At each handoff, record:
 - whether the working tree is clean;
 - the next task and any blocker.
 
-**Current handoff:** The active branch is `planning`. The repository contains planning documents and an early MPS routing prototype, but the complete application has not started. The latest committed planning baseline before this handoff update is `4135b31`; this update records the OpenRouter-versus-DeepSeek connector decision, the candidate provider tiers, and the next contract-first implementation sequence. The working tree must be clean after the handoff commit.
+**Current handoff:** The active planning branch records that the full implementation PDF is committed here for the next Manus account. Application implementation is on `build` at `9cab852`, with the reference-style Workspace, locally functional source/file/library/review interactions, `.env.example`, and `supabase/001_initial_schema.sql`; the build branch passes `npm test`, `npm run check`, and `npm run build`. The `website` branch remains a scoped visual prototype. Supabase/provider secrets are available to the next account through its secure environment, never through Git or this file. Continue from `build`, not from `planning`, and keep `main` untouched until the release gate passes. The working tree must be clean after this handoff commit.
