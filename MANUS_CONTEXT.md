@@ -41,11 +41,11 @@ Use a 15–20 item golden set and score factual accuracy, faithfulness, pedagogi
 
 ## Current status
 
-The browser foundation is now present on `build`: Vite/React scripts, the `/manus-routes.json` route manifest, a fixture-backed Workspace notebook view, and a Zod-backed `LectureNote` contract with tests. No provider or persistence route has been added yet; the fixture remains the data source for this first increment.
+The `build` branch contains the contract-first browser foundation. The scoped `website` branch now adds a reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It remains fixture-backed; provider, authentication, and persistence routes are not connected yet.
 
 ## Next concrete task
 
-Connect the Workspace to authenticated source/library state and add the server-side generation procedure while preserving the validated `LectureNote` contract.
+Connect the reference-style Workspace on `website` to authenticated source/library state and add the server-side generation procedure while preserving the validated `LectureNote` contract.
 
 ## Blockers
 
@@ -55,4 +55,4 @@ Managed Webdev initialization has now been attempted three times and failed at t
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
 
-**Latest handoff:** Added the browser foundation and fixture-backed notebook view on `build`. Validation passes with `npm test` (3 tests), `npm run check`, and `npm run build`. Managed Webdev initialization remains blocked at the platform internal `git_push` stage; no managed preview or hosting mode change is claimed. Commit this handoff together with the implementation.
+**Latest handoff:** The scoped `website` branch is pushed at the reference-style Workspace commit. Validation passes with `npm test` (3 tests), `npm run check`, and `npm run build`; the public port-3000 preview returns HTTP 200. The original managed Webdev initialization blocker remains recorded; this preview uses the repository Vite server and does not claim managed hosting.
