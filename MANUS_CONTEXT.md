@@ -26,13 +26,13 @@ This file is a durable handoff aid, not a substitute for Git history, tests, iss
 
 - **Name:** Synq.ai
 - **Repository:** https://github.com/XenogenesisXtreme/Synq.ai
-- **Working branch:** `updated`
+- **Working branch:** `planning`
 - **Main branch:** `main`
 - **Reference notebook repository:** https://github.com/XenogenesisXtreme/lecture-notebook-ai-mvp
 
 ## Current status
 
-Planning is approved and the project is ready to begin implementation. The first build is a browser-first vertical slice, not the full product. Managed Webdev initialization has been attempted twice and is currently blocked at the platform's internal `git_push` stage; no managed project or preview is ready yet.
+Planning is approved and the project is ready to begin implementation. The `planning` branch is the active handoff branch; there is no `plan` branch. It contains the approved planning set, the existing Dynamic MPS routing specification, and an early orchestration prototype. The full Synq.ai application and managed Webdev project are not ready yet.
 
 The target first slice is:
 
@@ -53,12 +53,13 @@ Nothing beyond this core loop should take priority until it works on a real lect
 - Adopted the `LectureNote`-compatible notebook contract from `lecture-notebook-ai-mvp/client/src/lib/lecture.ts`.
 - Updated `03-database-design.md`, `06-build-roadmap.md`, and `07-open-questions.md` to reflect those decisions.
 - Added `12-pre-build-decisions-and-notebook-contract.md` as the authoritative decision and schema record.
-- Branch `updated` was pushed to GitHub. The latest planning commit before this file is `f08731c`.
+- Branch `planning` was pushed to GitHub and is the branch to use for planning and handoff commits. The current branch tip before this handoff update is `4135b31`.
+- The branch already contains `09-rerouting-model-spec.md`, `backend/services/MPSModelRouter.ts`, `backend/services/MPSContractEnforcer.ts`, and `backend/services/SocraticAgentLoop.ts` as an orchestration prototype and specification. These files are not yet production-ready and still require contract tests, provider verification, error hardening, and integration into the application.
 - Attempted managed Webdev initialization for `synqai`; both attempts failed at `git_push` and the project attempt was released. The GitHub checkout was restored cleanly from `origin/updated`; the failed-init copy is retained outside the repository at `/home/ubuntu/Synq.ai-after-init-failure` for diagnosis.
 
 ## Next concrete task
 
-After managed Webdev initialization succeeds, start implementation with a contract-first browser vertical slice:
+After the hosting/build route is confirmed, start implementation with a contract-first browser vertical slice:
 
 1. Inspect the existing repository structure and choose the web app foundation.
 2. Add a fixture notebook using the adopted `LectureNote` shape.
@@ -68,7 +69,7 @@ After managed Webdev initialization succeeds, start implementation with a contra
 6. Add the server-side Master Pedagogy route only after the contract tests exist.
 7. Build the golden-set evaluation harness before treating generation quality as complete.
 
-Do not begin with Tauri packaging, audio, Extension work, collaboration, advanced mastery, local AI, or broad file-format support.
+Do not begin with Tauri packaging, audio, Extension work, collaboration, advanced mastery, local AI, or broad file-format support. Do not treat the existing router prototype as a finished provider integration.
 
 ## Adopted decisions and constraints
 
@@ -78,6 +79,9 @@ Do not begin with Tauri packaging, audio, Extension work, collaboration, advance
 - Benchmark a representative 90-minute lecture; use Inngest or Trigger.dev if the execution ceiling is unreliable.
 - Persist durable processing states: `pending`, `processing`, `completed`, `failed`.
 - Gemini and ElevenLabs credentials are server-side secrets only; never expose them to clients or commit them.
+- The Dynamic MPS Router is provider-neutral. Use OpenRouter as the connector when selecting a DeepSeek model through OpenRouter; a separate DeepSeek connector is unnecessary unless Synq.ai later calls DeepSeek directly.
+- Candidate routing tiers are Gemini for ingestion and long context, OpenRouter for deep reasoning, Groq for fast Socratic interaction, and Cerebras or another approved compatible provider for fallback. Free-tier limits, privacy terms, commercial usage, and latency must be verified before activation.
+- All model output must pass through the versioned MPS contract validator before becoming canonical notebook data. Provider-specific response formats must not leak into the UI or database contracts.
 - The learner-facing notebook payload follows the website's `LectureNote` contract. See `12-pre-build-decisions-and-notebook-contract.md` for the full TypeScript shape and compatibility rules.
 - Markdown and HTML are derived exports, not the notebook source of truth.
 - Browser-first; no full offline-editing promise in the first slice.
@@ -85,7 +89,7 @@ Do not begin with Tauri packaging, audio, Extension work, collaboration, advance
 - Export and permanent deletion are required before public launch.
 - Audio is on demand, initially one default voice and language, cached per notebook version.
 - Mastery starts with transparent quiz correctness and review-history rules.
-- Collaboration, Extension, self-hosting, BYOK, and local AI are deferred.
+- Collaboration, Extension, self-hosting, BYOK, and local AI are deferred for the ordinary user experience.
 - Tauri desktop token storage, when reached, uses Stronghold for the Supabase refresh token, PKCE for OAuth, and memory-only access tokens.
 
 ## Quality gate
@@ -114,6 +118,8 @@ No product-scope blocker is currently approved. Before public launch, implementa
 - exact source retention/deletion implementation;
 - a representative 90-minute generation-duration benchmark;
 - the final provider-secret deployment configuration;
+- the approved first provider adapter set and verified OpenRouter, Groq, Gemini, and fallback limits;
+- end-to-end latency measurement for the Socratic interaction target;
 - evaluator-owned golden-set materials and scoring workflow.
 - managed Webdev initialization must complete successfully before using its preview or managed checkpoint flow; do not treat the released partial scaffold as a ready project.
 
@@ -128,4 +134,4 @@ At each handoff, record:
 - whether the working tree is clean;
 - the next task and any blocker.
 
-**Current handoff:** Implementation has not started because managed Webdev initialization failed twice at `git_push`. The repository is restored and clean on `updated` at `aa045fb`; the next session should resolve or retry the managed initialization through the Webdev tool before creating application files.
+**Current handoff:** The active branch is `planning`. The repository contains planning documents and an early MPS routing prototype, but the complete application has not started. The latest committed planning baseline before this handoff update is `4135b31`; this update records the OpenRouter-versus-DeepSeek connector decision, the candidate provider tiers, and the next contract-first implementation sequence. The working tree must be clean after the handoff commit.
