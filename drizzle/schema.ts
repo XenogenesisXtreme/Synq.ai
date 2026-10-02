@@ -53,6 +53,7 @@ export const notebooks = mysqlTable("notebooks", {
   schemaVersion: varchar("schemaVersion", { length: 32 }).notNull(),
   status: mysqlEnum("status", ["draft", "ready", "archived"]).default("draft").notNull(),
   note: json("note").notNull(),
+  lessonPath: json("lessonPath"),
   version: int("version").default(1).notNull(),
   deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

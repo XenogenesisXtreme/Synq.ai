@@ -23,10 +23,11 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { fixtureLectureNote } from "@shared/lecture-fixture";
+import { lessonPathSchema } from "@shared/lesson-path";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
-type View = "workspace" | "notebook" | "lectures" | "mps" | "mastery" | "help" | "settings";
+type View = "workspace" | "notebook" | "lectures" | "mps" | "mpsPath" | "mastery" | "help" | "settings";
 
 const navItems: Array<{ label: string; path: string; icon: typeof Library; view: View }> = [
   { label: "Workspace", path: "/", icon: Library, view: "workspace" },
@@ -39,6 +40,7 @@ const navItems: Array<{ label: string; path: string; icon: typeof Library; view:
 function viewFromPath(path: string): View {
   if (path.startsWith("/notebooks")) return "notebook";
   if (path.startsWith("/lectures")) return "lectures";
+  if (path.startsWith("/mps/path")) return "mpsPath";
   if (path.startsWith("/mps")) return "mps";
   if (path.startsWith("/mastery")) return "mastery";
   if (path.startsWith("/help")) return "help";
@@ -144,7 +146,8 @@ export default function Home() {
         <nav className="rail-nav" aria-label="Primary navigation">
           {navItems.map(item => {
             const Icon = item.icon;
-            return <button className={`rail-link ${view === item.view ? "is-active" : ""}`} key={item.label} type="button" onClick={() => navigate(item.path)}><Icon size={16} strokeWidth={1.8} /><span>{item.label}</span>{view === item.view && <span className="active-dot" />}</button>;
+            const isActive = view === item.view || (item.view === "mps" && view === "mpsPath");
+            return <button className={`rail-link ${isActive ? "is-active" : ""}`} key={item.label} type="button" onClick={() => navigate(item.path)}><Icon size={16} strokeWidth={1.8} /><span>{item.label}</span>{isActive && <span className="active-dot" />}</button>;
           })}
         </nav>
         <div className="rail-bottom">
@@ -157,7 +160,7 @@ export default function Home() {
       <main className="synq-main">
         <header className="topbar">
           <div className="mobile-brand"><img src="/synq-icon.png" alt="" className="brand-mark" /><span>synq</span></div>
-          <div className="breadcrumb"><span>{view === "workspace" ? "Workspace" : view[0].toUpperCase() + view.slice(1)}</span><ChevronRight size={14} /><strong>{view === "workspace" ? "Systems Thinking" : fixtureLectureNote.title}</strong></div>
+          <div className="breadcrumb"><span>{view === "workspace" ? "Workspace" : view === "mpsPath" ? "MPS" : view[0].toUpperCase() + view.slice(1)}</span><ChevronRight size={14} /><strong>{view === "workspace" ? "Systems Thinking" : view === "mpsPath" ? "Learning path" : fixtureLectureNote.title}</strong></div>
           <div className="topbar-actions">
             {searchOpen ? <div className="search-box"><Search size={15} /><input autoFocus value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder="Search notebooks" aria-label="Search notebooks" /><button type="button" aria-label="Close search" onClick={() => { setSearchOpen(false); setSearchQuery(""); }}><X size={14} /></button>{searchMatches.length > 0 && <div className="search-results">{searchMatches.map(match => <button key={match} type="button" onClick={() => { setSearchOpen(false); setSearchQuery(""); navigate("/notebooks"); }}>{match}<ArrowUpRight size={13} /></button>)}</div>}</div> : <button className="icon-button" type="button" aria-label="Search" onClick={() => setSearchOpen(true)}><Search size={17} /></button>}
             <button className="icon-button mobile-menu" type="button" aria-label="Menu" onClick={() => setMobileMenuOpen(true)}><Menu size={17} /></button>
@@ -169,6 +172,7 @@ export default function Home() {
         {view === "notebook" && <NotebookView selectedSection={selectedSection} setSelectedSection={setSelectedSection} activeSection={activeSection} readingRef={readingRef} navigate={navigate} notebooks={notebooksQuery.data ?? []} />}
         {view === "lectures" && <LecturesView navigate={navigate} sources={sourcesQuery.data ?? []} />}
         {view === "mps" && <MPSView navigate={navigate} />}
+        {view === "mpsPath" && <MPSPathView navigate={navigate} notebookId={Number(location.split("/").pop())} />}
         {view === "mastery" && <MasteryView reviewStarted={reviewStarted} activeReviewQuestion={activeReviewQuestion} setActiveReviewQuestion={setActiveReviewQuestion} checkedQuestions={checkedQuestions} setCheckedQuestions={setCheckedQuestions} />}
         {view === "help" && <HelpView navigate={navigate} />}
         {view === "settings" && <SettingsView navigate={navigate} />}
@@ -183,6 +187,17 @@ const mpsAdventureStages = [
   { number: "03", title: "Practice recall", detail: "Answer a quick check so it sticks." },
   { number: "04", title: "Keep the skill", detail: "Leave with a notebook and a next review." },
 ];
+
+function MPSPathView({ navigate, notebookId }: { navigate: (path: string) => void; notebookId: number }) {
+  const notebookQuery = trpc.notebooks.get.useQuery({ id: notebookId }, { enabled: Number.isInteger(notebookId) && notebookId > 0, retry: false });
+  const [activeNodeId, setActiveNodeId] = useState("");
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const path = lessonPathSchema.safeParse(notebookQuery.data?.lessonPath).success ? lessonPathSchema.parse(notebookQuery.data?.lessonPath) : null;
+  if (notebookQuery.isLoading) return <div className="mps-path-loading"><span className="button-spinner" /> Planning your learning path…</div>;
+  if (!path) return <div className="mps-path-error"><Sparkles size={22} /><h1>Your path is still being prepared.</h1><p>Return to MPS and start another topic if this notebook was created before lesson paths were enabled.</p><button className="primary-button" type="button" onClick={() => navigate("/mps")}>Back to MPS</button></div>;
+  const answerFor = (nodeId: string) => answers[nodeId];
+  return <div className="mps-path-page"><div className="mps-path-header"><div><span className="eyebrow">Master Pedagogy Studio · your path</span><h1>{path.title}</h1><p>{path.overview}</p></div><div className="mps-path-header-actions"><span className="mps-time"><Clock3 size={14} /> {path.estimatedMinutes} min adventure</span><button className="secondary-button" type="button" onClick={() => navigate("/mps")}>New topic</button></div></div><div className="mps-path-layout"><main className="mps-units">{path.units.map(unit => <section className="mps-unit" key={unit.id}><div className="mps-unit-heading"><div><span className="mps-unit-label">UNIT {String(unit.position).padStart(2, "0")}</span><h2>{unit.title}</h2><p>{unit.subtitle}</p></div><span className="unit-toggle">⌃</span></div><div className="mps-node-list">{unit.nodes.map((node, nodeIndex) => { const isUnlocked = node.status !== "locked" || nodeIndex === 0; const isActive = activeNodeId === node.id; return <div className={`mps-node-wrap ${isActive ? "is-active" : ""}`} key={node.id}><button className={`mps-node ${isUnlocked ? "is-unlocked" : "is-locked"}`} type="button" disabled={!isUnlocked} onClick={() => setActiveNodeId(isActive ? "" : node.id)}><span className="mps-node-orb">{node.status === "complete" ? <Check size={14} /> : isUnlocked ? <span>{nodeIndex + 1}</span> : <Clock3 size={13} />}</span><span className="mps-node-copy"><strong>{node.title}</strong><small>{node.subtitle} · {node.durationMinutes} min</small></span><ChevronRight size={15} /></button>{isActive && <div className="mps-node-content"><span className="eyebrow">{node.kind === "practice" ? "Interactive check" : node.kind === "challenge" ? "Use the idea" : "Lesson"}</span><h3>{node.prompt}</h3>{node.options && <div className="mps-options">{node.options.map(option => <button className={answerFor(node.id) === option ? "is-selected" : ""} key={option} type="button" onClick={() => setAnswers(current => ({ ...current, [node.id]: option }))}>{option}{answerFor(node.id) === option && <Check size={14} />}</button>)}</div>}{node.kind !== "lesson" && answerFor(node.id) && <p className="mps-feedback"><Check size={14} /> Saved. Your next step will unlock when this check is complete.</p>}</div>}</div>; })}</div></section>)}</main><aside className="mps-path-aside"><div className="utility-card"><div className="utility-title"><span>Adventure progress</span><span className="count-badge">0%</span></div><div className="mps-progress-track"><span /></div><p className="utility-copy">Complete each node in order. Short lessons unlock the next useful step without overwhelming you.</p></div><div className="utility-card"><div className="utility-title"><span>Path rules</span><Sparkles size={15} /></div><div className="path-rule"><Check size={13} /> Explain before memorizing</div><div className="path-rule"><Check size={13} /> Practice after every idea</div><div className="path-rule"><Check size={13} /> Keep uncertainty visible</div></div></aside></div></div>;
+}
 
 function MPSView({ navigate }: { navigate: (path: string) => void }) {
   const [topic, setTopic] = useState("");
@@ -204,10 +219,10 @@ function MPSView({ navigate }: { navigate: (path: string) => void }) {
         content: `Create a complete beginner-friendly learning adventure about ${cleanTopic}. Start with intuition, then explain the core concepts, examples, relationships, common mistakes, and short recall questions. The learner wants a structured path they can understand and revisit.`,
         sourceType: "pasted_text",
       });
-      await generateNotebook.mutateAsync({ sourceId: created.sourceId });
+      const generated = await generateNotebook.mutateAsync({ sourceId: created.sourceId });
       await utils.notebooks.list.invalidate();
       await utils.lectureLens.list.invalidate();
-      navigate("/notebooks");
+      navigate(`/mps/path/${generated.notebookId}`);
     } catch (value) {
       setError(value instanceof Error ? value.message : "Your adventure could not start yet. Please try again.");
     } finally {

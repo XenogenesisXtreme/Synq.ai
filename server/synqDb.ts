@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { getDb } from "./db";
 import { lectureSources, notebooks, processingRuns } from "../drizzle/schema";
 import { generateLectureNote } from "./mps";
+import { buildLessonPath } from "../shared/lesson-path";
 
 function requireDatabase(db: Awaited<ReturnType<typeof getDb>>) {
   if (!db) {
@@ -101,6 +102,7 @@ export async function generateOwnedNotebook(userId: number, sourceId: number) {
       schemaVersion: "lecture-note-v1",
       status: "ready",
       note: generated.note,
+      lessonPath: buildLessonPath(generated.note),
       version: 1,
     });
     const notebookId = Number((notebookResult as unknown as { insertId: number }).insertId);

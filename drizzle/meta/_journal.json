@@ -15,6 +15,13 @@
       "when": 1790856090391,
       "tag": "0001_married_king_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1790919973532,
+      "tag": "0002_next_molten_man",
+      "breakpoints": true
     }
   ]
 }

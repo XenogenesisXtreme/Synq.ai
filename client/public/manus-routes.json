@@ -5,6 +5,7 @@
     { "path": "/notebooks/:id", "title": "Notebook detail" },
     { "path": "/lectures", "title": "Lecture Lens" },
     { "path": "/mps", "title": "Master Pedagogy Studio" },
+    { "path": "/mps/path/:id", "title": "MPS learning path" },
     { "path": "/mastery", "title": "Synq Mastery" },
     { "path": "/help", "title": "Help & feedback" },
     { "path": "/settings", "title": "Personal settings" },
