@@ -41,18 +41,20 @@ Use a 15–20 item golden set and score factual accuracy, faithfulness, pedagogi
 
 ## Current status
 
-The `build` branch contains the contract-first browser foundation. The scoped `website` branch now adds a reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It remains fixture-backed; provider, authentication, and persistence routes are not connected yet.
+The `build` branch contains the contract-first browser foundation and the reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It now also contains the server-side provider router, contract-validated generation orchestration, Supabase REST persistence adapter, bearer-token authentication boundary, and processing-state transitions. The UI remains fixture-backed until the authenticated route is connected to the deployed client.
 
 ## Next concrete task
 
-Connect the reference-style Workspace on `website` to authenticated source/library state and add the server-side generation procedure while preserving the validated `LectureNote` contract.
+Connect the Workspace source composer to `handleGenerateNotebook`, configure the deployment's Supabase server variables, and run limited live OpenRouter/Groq validation through the server boundary. Then add authenticated source/library queries and begin the fixed 15–20 item golden-set evaluation. Keep Cerebras disabled unless separately approved and configured.
 
 ## Blockers
 
 Managed Webdev initialization has now been attempted three times and failed at the platform's internal `git_push` stage each time. No managed project or preview is ready. Do not claim managed initialization succeeded or silently switch hosting mode; report the blocker and wait for the Webdev runtime to recover.
 
+The current secure environment has Gemini, ElevenLabs, OpenRouter, and Groq credentials available; Cerebras is intentionally not configured. Secret values must remain outside Git, handoff files, and browser code.
+
 ## Validation and commit
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
 
-**Latest handoff:** The scoped `website` branch is pushed at the reference-style Workspace commit. Validation passes with `npm test` (3 tests), `npm run check`, and `npm run build`; the public port-3000 preview returns HTTP 200. The original managed Webdev initialization blocker remains recorded; this preview uses the repository Vite server and does not claim managed hosting.
+**Latest handoff:** The reference-style Workspace was brought into `build`, and server-side routing/persistence boundaries plus orchestration tests were added. Validation passes with `npm test` (5 tests), `npm run check`, `npm run build`, and `git diff --check`. The original managed Webdev initialization blocker remains recorded; repository Vite development is not managed hosting. Commit and push this handoff together with the implementation, leave `main` untouched, and record the resulting commit hash here.
