@@ -1,0 +1,31 @@
+-- Synq.ai initial Supabase/Postgres schema. Apply through Supabase migrations.
+create extension if not exists pgcrypto;
+create type public.processing_status as enum ('pending','processing','completed','failed');
+create type public.source_kind as enum ('pasted_text','text_file');
+create table public.profiles (id uuid primary key references auth.users(id) on delete cascade, display_name text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create table public.lecture_sources (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, title text not null, kind public.source_kind not null, file_name text, mime_type text, content text not null, status public.processing_status not null default 'pending', created_at timestamptz not null default now(), updated_at timestamptz not null default now(), deleted_at timestamptz);
+create table public.processing_runs (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, source_id uuid not null references public.lecture_sources(id) on delete cascade, status public.processing_status not null default 'pending', schema_version text not null default 'lecture-note-v1', provider text, model text, prompt_version text, metadata jsonb not null default '{}'::jsonb, error_code text, started_at timestamptz, completed_at timestamptz, created_at timestamptz not null default now());
+create table public.notebooks (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, source_id uuid references public.lecture_sources(id) on delete set null, processing_run_id uuid references public.processing_runs(id) on delete set null, title text not null, schema_version text not null default 'lecture-note-v1', note jsonb not null, version integer not null default 1, status public.processing_status not null default 'completed', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create table public.assessments (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, notebook_id uuid not null references public.notebooks(id) on delete cascade, notebook_version integer not null, payload jsonb not null, created_at timestamptz not null default now());
+create table public.assessment_attempts (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, assessment_id uuid not null references public.assessments(id) on delete cascade, answers jsonb not null, score numeric, completed_at timestamptz, created_at timestamptz not null default now());
+create table public.mastery_items (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, notebook_id uuid not null references public.notebooks(id) on delete cascade, concept text not null, correct_count integer not null default 0, attempt_count integer not null default 0, last_reviewed_at timestamptz, next_review_at timestamptz, state text not null default 'new', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create table public.revisions (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, notebook_id uuid not null references public.notebooks(id) on delete cascade, base_version integer not null, note jsonb not null, created_at timestamptz not null default now());
+create index lecture_sources_owner_idx on public.lecture_sources(owner_id, created_at desc);
+create index notebooks_owner_idx on public.notebooks(owner_id, updated_at desc);
+
+alter table public.profiles enable row level security;
+alter table public.lecture_sources enable row level security;
+alter table public.processing_runs enable row level security;
+alter table public.notebooks enable row level security;
+alter table public.assessments enable row level security;
+alter table public.assessment_attempts enable row level security;
+alter table public.mastery_items enable row level security;
+alter table public.revisions enable row level security;
+create policy profiles_owner on public.profiles for all using (auth.uid() = id) with check (auth.uid() = id);
+create policy lecture_sources_owner on public.lecture_sources for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy processing_runs_owner on public.processing_runs for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy notebooks_owner on public.notebooks for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy assessments_owner on public.assessments for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy assessment_attempts_owner on public.assessment_attempts for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy mastery_items_owner on public.mastery_items for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy revisions_owner on public.revisions for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
