@@ -1,0 +1,47 @@
+/* Synq Guided Learning Studio: warm, topic-first learning surfaces. */
+.synq-shell { background: #fbfaf6; }
+.synq-main { background: #fbfaf6; }
+.topbar { background: rgba(251,250,246,.9); border-bottom-color: #eee9de; }
+.synq-rail { background: #f4f1e8; border-right-color: #e9e4d8; }
+.brand-name { color: #183b3d; }
+.brand-caption, .rail-section-label { color: #9a9589; }
+.rail-link { border-radius: 999px; color: #6f776e; }
+.rail-link:hover, .rail-link.is-active { color: #183b3d; background: #fffdf8; }
+.active-dot { background: #c8f169; box-shadow: 0 0 0 4px rgba(200,241,105,.18); }
+.welcome-row { align-items: end; padding: 20px 0 10px; }
+.welcome-row h1, .subpage-intro h1 { max-width: 680px; color: #173b3e; font-size: clamp(38px, 5vw, 72px); letter-spacing: -.065em; line-height: .98; }
+.welcome-row .lede, .subpage-intro .lede { max-width: 560px; color: #7c837b; font-size: 15px; line-height: 1.65; }
+.intake-card, .notebook-card, .reading-card, .utility-card, .source-record-card, .mastery-hero, .review-panel, .settings-card, .help-card { border-color: #ece7dc; border-radius: 22px; box-shadow: 0 14px 34px rgba(65,56,35,.045); }
+.intake-card { padding: 26px; background: #fffdf8; }
+.intake-card textarea { min-height: 180px; border: 0; border-radius: 16px; background: #f7f3ea; font-size: 16px; line-height: 1.65; }
+.intake-card textarea:focus { box-shadow: 0 0 0 4px rgba(200,241,105,.18); }
+.primary-button { border-radius: 999px; background: #183b3d; box-shadow: 0 7px 0 #0d292b; }
+.primary-button:hover { background: #295b5c; }
+.secondary-button, .read-button, .text-button { border-radius: 999px; }
+.notebook-card { background: #fffdf8; }
+.notebook-overview { padding: 28px; }
+.notebook-overview h2, .reading-header h2, .source-record-heading h2, .review-panel-heading h2 { color: #173b3e; }
+.section-index { background: #f6f1e7; border-left-color: #ece7dc; }
+.index-item { border-radius: 12px; }
+.index-item.is-selected, .index-item:hover { background: #fffdf8; }
+.utility-card { background: #fffdf8; }
+.review-card, .mastery-hero { background: #eff7dc; border-color: #dcebb7; }
+.signal-badge { border-color: #dcebb7; background: #eff7dc; color: #66813f; }
+.status-chip { border-color: #dcebb7; background: #eff7dc; color: #66813f; }
+.library-row { border-radius: 18px; background: #fffdf8; }
+.library-row:hover, .library-row.is-current { border-color: #dcebb7; background: #f5f9e9; }
+.empty-library { border-radius: 18px; background: #fffdf8; }
+@media (max-width: 720px) { .welcome-row h1, .subpage-intro h1 { font-size: 42px; } .intake-card textarea { min-height: 145px; } }
+
+.learning-challenge { position: relative; display: grid; grid-template-columns: 78px minmax(0, 1fr) auto; align-items: center; gap: 20px; max-width: 1420px; margin: 22px auto 0; padding: 18px 22px; border: 1px solid #dbeab9; border-radius: 24px; background: linear-gradient(110deg, #eff8d9 0%, #f7f8e8 62%, #fffdf8 100%); box-shadow: 0 13px 30px rgba(73,91,38,.08); overflow: hidden; }
+.learning-challenge::after { content: ""; position: absolute; width: 180px; height: 180px; right: 12%; top: -115px; border-radius: 50%; background: rgba(200,241,105,.18); }
+.challenge-mascot { position: relative; z-index: 1; display: grid; place-items: center; width: 64px; height: 64px; border: 5px solid #183b3d; border-radius: 22px 22px 24px 8px; background: #c8f169; transform: rotate(-5deg); box-shadow: 4px 5px 0 #183b3d; }
+.mascot-eye { position: absolute; top: 20px; width: 7px; height: 10px; border-radius: 99px; background: #183b3d; }
+.mascot-eye.left { left: 17px; }.mascot-eye.right { right: 17px; }
+.mascot-smile { position: absolute; bottom: 14px; width: 20px; height: 9px; border-bottom: 3px solid #183b3d; border-radius: 0 0 20px 20px; }
+.challenge-copy { position: relative; z-index: 1; }.challenge-kicker { display: block; margin-bottom: 3px; color: #6d8a38; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.challenge-copy h2 { margin: 0; color: #183b3d; font-family: Georgia, serif; font-size: clamp(22px, 2.6vw, 31px); font-weight: 400; letter-spacing: -.035em; }.challenge-copy p { margin: 5px 0 10px; color: #74816b; font-size: 12px; }
+.challenge-meta { display: flex; flex-wrap: wrap; gap: 7px; }.challenge-meta span { padding: 5px 8px; border: 1px solid #d6e5b3; border-radius: 999px; color: #688044; background: rgba(255,255,255,.52); font-size: 9px; font-weight: 750; }
+.challenge-actions { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; }.challenge-start { display: inline-flex; align-items: center; gap: 8px; padding: 11px 15px; border: 0; border-radius: 999px; color: #fffdf8; background: #183b3d; box-shadow: 0 4px 0 #0d292b; font-size: 11px; font-weight: 800; white-space: nowrap; }.challenge-start:hover { background: #295b5c; transform: translateY(-1px); }
+.challenge-dismiss { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 50%; color: #7e8f6f; background: rgba(255,255,255,.55); }.challenge-dismiss:hover { color: #183b3d; background: #fffdf8; }
+@media (max-width: 720px) { .learning-challenge { grid-template-columns: 54px minmax(0, 1fr); gap: 14px; margin: 16px 18px 0; padding: 16px; border-radius: 19px; }.challenge-mascot { width: 48px; height: 48px; border-width: 4px; border-radius: 16px 16px 18px 6px; box-shadow: 3px 4px 0 #183b3d; }.mascot-eye { top: 14px; width: 5px; height: 8px; }.mascot-eye.left { left: 13px; }.mascot-eye.right { right: 13px; }.mascot-smile { bottom: 10px; width: 16px; height: 7px; border-bottom-width: 2px; }.challenge-actions { grid-column: 2; justify-content: space-between; }.challenge-start { flex: 1; justify-content: center; } }

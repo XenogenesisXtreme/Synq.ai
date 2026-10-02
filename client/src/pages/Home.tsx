@@ -66,6 +66,7 @@ export default function Home() {
   const [checkedQuestions, setCheckedQuestions] = useState<number[]>([]);
   const [activeReviewQuestion, setActiveReviewQuestion] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+  const [challengeAdDismissed, setChallengeAdDismissed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const readingRef = useRef<HTMLElement>(null);
   const activeSection = useMemo(
@@ -161,6 +162,7 @@ export default function Home() {
           </div>
         </header>
 
+        {view === "workspace" && !challengeAdDismissed && <LearningChallengeAd navigate={navigate} dismiss={() => setChallengeAdDismissed(true)} />}
         {view === "workspace" && <WorkspaceView sourceText={sourceText} setSourceText={setSourceText} sourceName={sourceName} isProcessing={isProcessing} fileInputRef={fileInputRef} handleFile={handleFile} handleProcess={handleProcess} selectedSection={selectedSection} setSelectedSection={setSelectedSection} activeSection={activeSection} readingRef={readingRef} navigate={navigate} scrollToReading={scrollToReading} sourceOpen={sourceOpen} setSourceOpen={setSourceOpen} startReview={startReview} errorMessage={errorMessage} authLoading={authLoading} userName={user?.name ?? "learner"} latestNotebookCount={notebooksQuery.data?.length ?? 0} />}
         {view === "notebook" && <NotebookView selectedSection={selectedSection} setSelectedSection={setSelectedSection} activeSection={activeSection} readingRef={readingRef} navigate={navigate} notebooks={notebooksQuery.data ?? []} />}
         {view === "lectures" && <LecturesView navigate={navigate} sources={sourcesQuery.data ?? []} />}
@@ -170,6 +172,10 @@ export default function Home() {
       </main>
     </div>
   );
+}
+
+function LearningChallengeAd({ navigate, dismiss }: { navigate: (path: string) => void; dismiss: () => void }) {
+  return <section className="learning-challenge" aria-label="Synq learning challenge"><div className="challenge-mascot" aria-hidden="true"><span className="mascot-eye left" /><span className="mascot-eye right" /><span className="mascot-smile" /></div><div className="challenge-copy"><span className="challenge-kicker">A tiny win counts</span><h2>Turn one idea into a 3-minute lesson.</h2><p>Build a quick learning streak: understand it, explain it, remember it.</p><div className="challenge-meta"><span>+10 focus points</span><span>1 quick recall</span><span>0 busywork</span></div></div><div className="challenge-actions"><button className="challenge-start" type="button" onClick={() => { navigate("/"); window.setTimeout(() => document.getElementById("intake-title")?.scrollIntoView({ behavior: "smooth", block: "center" }), 60); }}>Start a sprint <ArrowUpRight size={15} /></button><button className="challenge-dismiss" type="button" aria-label="Dismiss learning challenge" onClick={dismiss}><X size={15} /></button></div></section>;
 }
 
 type WorkspaceProps = {
