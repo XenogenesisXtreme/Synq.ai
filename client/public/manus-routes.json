@@ -1,0 +1,12 @@
+{
+  "routes": [
+    { "path": "/", "title": "Synq Workspace" },
+    { "path": "/notebooks", "title": "Notebook library" },
+    { "path": "/notebooks/:id", "title": "Notebook detail" },
+    { "path": "/lectures", "title": "Lecture Lens" },
+    { "path": "/mastery", "title": "Synq Mastery" },
+    { "path": "/help", "title": "Help & feedback" },
+    { "path": "/settings", "title": "Personal settings" },
+    { "path": "/404", "title": "Not found" }
+  ]
+}
