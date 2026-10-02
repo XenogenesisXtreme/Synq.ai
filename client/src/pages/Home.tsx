@@ -26,18 +26,20 @@ import { fixtureLectureNote } from "@shared/lecture-fixture";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
-type View = "workspace" | "notebook" | "lectures" | "mastery" | "help" | "settings";
+type View = "workspace" | "notebook" | "lectures" | "mps" | "mastery" | "help" | "settings";
 
 const navItems: Array<{ label: string; path: string; icon: typeof Library; view: View }> = [
   { label: "Workspace", path: "/", icon: Library, view: "workspace" },
   { label: "Notebook", path: "/notebooks", icon: BookOpen, view: "notebook" },
   { label: "Lectures", path: "/lectures", icon: Inbox, view: "lectures" },
+  { label: "MPS", path: "/mps", icon: Sparkles, view: "mps" },
   { label: "Mastery", path: "/mastery", icon: Gauge, view: "mastery" },
 ];
 
 function viewFromPath(path: string): View {
   if (path.startsWith("/notebooks")) return "notebook";
   if (path.startsWith("/lectures")) return "lectures";
+  if (path.startsWith("/mps")) return "mps";
   if (path.startsWith("/mastery")) return "mastery";
   if (path.startsWith("/help")) return "help";
   if (path.startsWith("/settings")) return "settings";
@@ -166,12 +168,54 @@ export default function Home() {
         {view === "workspace" && <WorkspaceView sourceText={sourceText} setSourceText={setSourceText} sourceName={sourceName} isProcessing={isProcessing} fileInputRef={fileInputRef} handleFile={handleFile} handleProcess={handleProcess} selectedSection={selectedSection} setSelectedSection={setSelectedSection} activeSection={activeSection} readingRef={readingRef} navigate={navigate} scrollToReading={scrollToReading} sourceOpen={sourceOpen} setSourceOpen={setSourceOpen} startReview={startReview} errorMessage={errorMessage} authLoading={authLoading} userName={user?.name ?? "learner"} latestNotebookCount={notebooksQuery.data?.length ?? 0} />}
         {view === "notebook" && <NotebookView selectedSection={selectedSection} setSelectedSection={setSelectedSection} activeSection={activeSection} readingRef={readingRef} navigate={navigate} notebooks={notebooksQuery.data ?? []} />}
         {view === "lectures" && <LecturesView navigate={navigate} sources={sourcesQuery.data ?? []} />}
+        {view === "mps" && <MPSView navigate={navigate} />}
         {view === "mastery" && <MasteryView reviewStarted={reviewStarted} activeReviewQuestion={activeReviewQuestion} setActiveReviewQuestion={setActiveReviewQuestion} checkedQuestions={checkedQuestions} setCheckedQuestions={setCheckedQuestions} />}
         {view === "help" && <HelpView navigate={navigate} />}
         {view === "settings" && <SettingsView navigate={navigate} />}
       </main>
     </div>
   );
+}
+
+const mpsAdventureStages = [
+  { number: "01", title: "Build intuition", detail: "Meet the big idea through a simple explanation." },
+  { number: "02", title: "Make connections", detail: "Link the idea to examples and nearby concepts." },
+  { number: "03", title: "Practice recall", detail: "Answer a quick check so it sticks." },
+  { number: "04", title: "Keep the skill", detail: "Leave with a notebook and a next review." },
+];
+
+function MPSView({ navigate }: { navigate: (path: string) => void }) {
+  const [topic, setTopic] = useState("");
+  const [isStarting, setIsStarting] = useState(false);
+  const [error, setError] = useState("");
+  const createSource = trpc.lectureLens.create.useMutation();
+  const generateNotebook = trpc.lectureLens.generate.useMutation();
+  const utils = trpc.useUtils();
+  const examples = ["Quantum physics", "How AI works", "Stoic philosophy", "The Roman Empire"];
+
+  async function startAdventure() {
+    const cleanTopic = topic.trim();
+    if (!cleanTopic) return;
+    setError("");
+    setIsStarting(true);
+    try {
+      const created = await createSource.mutateAsync({
+        title: `${cleanTopic} adventure`,
+        content: `Create a complete beginner-friendly learning adventure about ${cleanTopic}. Start with intuition, then explain the core concepts, examples, relationships, common mistakes, and short recall questions. The learner wants a structured path they can understand and revisit.`,
+        sourceType: "pasted_text",
+      });
+      await generateNotebook.mutateAsync({ sourceId: created.sourceId });
+      await utils.notebooks.list.invalidate();
+      await utils.lectureLens.list.invalidate();
+      navigate("/notebooks");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Your adventure could not start yet. Please try again.");
+    } finally {
+      setIsStarting(false);
+    }
+  }
+
+  return <div className="mps-page"><section className="mps-hero"><div className="mps-hero-copy"><span className="eyebrow">Master Pedagogy Studio</span><h1>What do you want to learn?</h1><p>Type any topic and Synq will turn it into a guided adventure: small steps, useful examples, and a quick practice loop.</p><div className="mps-input-wrap"><Sparkles size={18} /><input value={topic} onChange={event => setTopic(event.target.value)} onKeyDown={event => { if (event.key === "Enter") void startAdventure(); }} placeholder="e.g. how neural networks learn" aria-label="Topic to learn" /><button className="mps-start" type="button" disabled={!topic.trim() || isStarting} onClick={() => void startAdventure()}>{isStarting ? "Building…" : "Start adventure"}<ArrowUpRight size={15} /></button></div>{error && <p className="mps-error" role="alert">{error}</p>}<div className="mps-examples"><span>Try a topic</span>{examples.map(example => <button key={example} type="button" onClick={() => setTopic(example)}>{example}</button>)}</div></div><div className="mps-orbit" aria-hidden="true"><div className="orbit-ring ring-one" /><div className="orbit-ring ring-two" /><div className="orbit-core"><Sparkles size={29} /></div><span className="orbit-dot dot-one" /><span className="orbit-dot dot-two" /><span className="orbit-dot dot-three" /></div></section><section className="mps-adventure"><div className="mps-section-heading"><div><span className="eyebrow">Your learning path</span><h2>Every topic becomes an adventure.</h2></div><span className="mps-time"><Clock3 size={14} /> 3–10 min steps</span></div><div className="mps-stage-grid">{mpsAdventureStages.map((stage, index) => <article className={`mps-stage ${index === 0 ? "is-first" : ""}`} key={stage.number}><span className="mps-stage-number">{stage.number}</span><div className="mps-stage-icon">{index === 0 ? <Sparkles size={18} /> : index === 1 ? <ArrowUpRight size={18} /> : index === 2 ? <MessageCircleQuestion size={18} /> : <Check size={18} />}</div><h3>{stage.title}</h3><p>{stage.detail}</p>{index < mpsAdventureStages.length - 1 && <ChevronRight className="mps-stage-arrow" size={18} />}</article>)}</div></section><section className="mps-bottom-grid"><article className="mps-promise"><span className="eyebrow">Not a lecture dump</span><h2>Learn the why, not just the words.</h2><p>Synq adapts each path to the topic with explanations, comparisons, examples, misconceptions, and moments where you have to retrieve the idea yourself.</p><button className="secondary-button" type="button" onClick={() => navigate("/mastery")}>See the practice loop <ArrowUpRight size={14} /></button></article><aside className="mps-streak"><div className="streak-badge">+1</div><span className="eyebrow">Keep your momentum</span><h3>One curious question is enough to begin.</h3><p>Come back tomorrow and Synq will know where to take you next.</p></aside></section></div>;
 }
 
 function LearningChallengeAd({ navigate, dismiss }: { navigate: (path: string) => void; dismiss: () => void }) {
