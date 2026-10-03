@@ -41,7 +41,7 @@ Use a 15–20 item golden set and score factual accuracy, faithfulness, pedagogi
 
 ## Current status
 
-The `build` branch contains the contract-first browser foundation and the reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It now also contains the server-side provider router, contract-validated generation orchestration, Supabase REST persistence adapter, bearer-token authentication boundary, and processing-state transitions. The UI remains fixture-backed until the authenticated route is connected to the deployed client.
+The `build` branch contains the contract-first browser foundation and the reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It now also contains the server-side provider router, contract-validated generation orchestration, Supabase REST persistence adapter, bearer-token authentication boundary, processing-state transitions, and a root `vercel.json` deployment configuration. The UI remains fixture-backed until the authenticated route is connected to the deployed client.
 
 ## Next concrete task
 
@@ -57,4 +57,4 @@ The current secure environment has Gemini, ElevenLabs, OpenRouter, and Groq cred
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
 
-**Latest handoff:** The reference-style Workspace was brought into `build`, and server-side routing/persistence boundaries plus orchestration tests were added. Validation passes with `npm test` (5 tests), `npm run check`, `npm run build`, and `git diff --check`. The original managed Webdev initialization blocker remains recorded; repository Vite development is not managed hosting. Commit and push this handoff together with the implementation, leave `main` untouched, and record the resulting commit hash here.
+**Latest handoff:** The reference-style Workspace was brought into `build`, server-side routing/persistence boundaries plus orchestration tests were added, and `vercel.json` was added for Vite deployment. Validation passes with `npm test` (5 tests), `npm run check`, `npm run build`, and `git diff --check`. The original managed Webdev initialization blocker remains recorded; repository Vite development is not managed hosting. Commit and push this handoff together with the implementation, leave `main` untouched, and record the resulting commit hash here.
