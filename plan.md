@@ -69,3 +69,10 @@ The release gate includes a fixed 15–20 item golden set spanning formula-heavy
 ## Current status and next task
 
 The managed Web project has a polished fixture-backed Workspace, functional navigation/subpages, a LectureNote-compatible runtime schema/fixture/exporter, route manifest, branding, and passing typecheck/tests/build. The durable domain tranche is now in place: additive source, processing-run, notebook, assessment, mastery, and revision tables are defined and migrated; protected source/notebook/workspace procedures exist; and the server-side Master Pedagogy adapter validates JSON against the LectureNote contract and persists pending/processing/completed/failed transitions with duplicate protection. The next code tranche is to connect the real authenticated Workspace intake/library to these procedures, then add generated assessments/mastery and replace remaining fixture-only states incrementally.
+
+
+### Stage 7 — Recall Lab
+
+Add Recall Lab as Synq's source-grounded NotebookLM-style study surface. Learners select one or more owned notebooks, ask questions in a conversational interface, receive citations back to the selected notebook sources, and generate reusable briefing docs, study guides, FAQs, quizzes, flashcards, timelines, and mind maps. Persist generated artifacts with owner and notebook relationships. Keep the Synq twist visible: playful artifact modes, active-recall framing, source trails, and direct handoff into MPS/mastery rather than an ungrounded general chatbot.
+
+Current Recall Lab delivery includes the protected answer and artifact procedures, validated shared citation/artifact contracts, durable artifact storage, authenticated route `/recall`, source shelf, grounded chat composer, citation chips, artifact studio, saved artifact shelf, responsive states, migration, health/route checks, and passing typecheck/tests/build. Future parity work can add multi-turn thread persistence, inline source highlighting, audio overviews, richer artifact rendering, and explicit export/download actions without changing the contract boundary.

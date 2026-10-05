@@ -20,20 +20,24 @@ import {
   Settings,
   Sparkles,
   X,
+  BrainCircuit,
 } from "lucide-react";
 import { useLocation } from "wouter";
+import { startLogin } from "@/const";
 import { fixtureLectureNote } from "@shared/lecture-fixture";
 import { lessonPathSchema } from "@shared/lesson-path";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import RecallLab from "./RecallLab";
 
-type View = "workspace" | "notebook" | "lectures" | "mps" | "mpsPath" | "mastery" | "help" | "settings";
+type View = "workspace" | "notebook" | "lectures" | "mps" | "mpsPath" | "recall" | "mastery" | "help" | "settings";
 
 const navItems: Array<{ label: string; path: string; icon: typeof Library; view: View }> = [
   { label: "Workspace", path: "/", icon: Library, view: "workspace" },
   { label: "Notebook", path: "/notebooks", icon: BookOpen, view: "notebook" },
   { label: "Lectures", path: "/lectures", icon: Inbox, view: "lectures" },
   { label: "MPS", path: "/mps", icon: Sparkles, view: "mps" },
+  { label: "Recall Lab", path: "/recall", icon: BrainCircuit, view: "recall" },
   { label: "Mastery", path: "/mastery", icon: Gauge, view: "mastery" },
 ];
 
@@ -42,6 +46,7 @@ function viewFromPath(path: string): View {
   if (path.startsWith("/lectures")) return "lectures";
   if (path.startsWith("/mps/path")) return "mpsPath";
   if (path.startsWith("/mps")) return "mps";
+  if (path.startsWith("/recall")) return "recall";
   if (path.startsWith("/mastery")) return "mastery";
   if (path.startsWith("/help")) return "help";
   if (path.startsWith("/settings")) return "settings";
@@ -50,7 +55,7 @@ function viewFromPath(path: string): View {
 
 export default function Home() {
   const [location, setLocation] = useLocation();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const utils = trpc.useUtils();
   const sourcesQuery = trpc.lectureLens.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const notebooksQuery = trpc.notebooks.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
@@ -82,6 +87,9 @@ export default function Home() {
     if (!query) return [];
     return [fixtureLectureNote.title, ...fixtureLectureNote.sections.map(section => section.heading), ...fixtureLectureNote.keyTerms.map(term => term.term)].filter(item => item.toLowerCase().includes(query));
   }, [searchQuery]);
+
+  if (authLoading) return <LoginPage loading />;
+  if (!user) return <LoginPage />;
 
   function navigate(path: string) {
     setLocation(path);
@@ -152,8 +160,8 @@ export default function Home() {
         </nav>
         <div className="rail-bottom">
           <button className={`rail-link ${view === "help" ? "is-active" : ""}`} type="button" onClick={() => navigate("/help")}><MessageCircleQuestion size={16} /><span>Help & feedback</span></button>
-          <button className="profile-chip" type="button" onClick={() => setProfileOpen(value => !value)}><div className="avatar">JR</div><div><strong>Jordan R.</strong><span>Personal space</span></div><MoreHorizontal size={16} className="muted-icon" /></button>
-          {profileOpen && <div className="profile-popover"><strong>Jordan R.</strong><span>Signed in to personal space</span><button type="button" onClick={() => { setProfileOpen(false); navigate("/settings"); }}>Open settings <Settings size={13} /></button></div>}
+          <button className="profile-chip" type="button" onClick={() => setProfileOpen(value => !value)}><div className="avatar">{initials(user.name ?? user.email ?? "Learner")}</div><div><strong>{user.name ?? "Learner"}</strong><span>{user.email ?? "Manus account"}</span></div><MoreHorizontal size={16} className="muted-icon" /></button>
+          {profileOpen && <div className="profile-popover"><strong>{user.name ?? "Learner"}</strong><span>{user.email ?? "Signed in with Manus"}</span><button type="button" onClick={() => { setProfileOpen(false); navigate("/settings"); }}>Open settings <Settings size={13} /></button><button type="button" onClick={() => { setProfileOpen(false); void logout(); }}>Sign out <ArrowUpRight size={13} /></button></div>}
         </div>
       </aside>
 
@@ -173,12 +181,21 @@ export default function Home() {
         {view === "lectures" && <LecturesView navigate={navigate} sources={sourcesQuery.data ?? []} />}
         {view === "mps" && <MPSView navigate={navigate} />}
         {view === "mpsPath" && <MPSPathView navigate={navigate} notebookId={Number(location.split("/").pop())} />}
-        {view === "mastery" && <MasteryView reviewStarted={reviewStarted} activeReviewQuestion={activeReviewQuestion} setActiveReviewQuestion={setActiveReviewQuestion} checkedQuestions={checkedQuestions} setCheckedQuestions={setCheckedQuestions} />}
+        {view === "recall" && <RecallLab />}
+        {view === "mastery" && <MasteryView reviewStarted={reviewStarted} setReviewStarted={setReviewStarted} activeReviewQuestion={activeReviewQuestion} setActiveReviewQuestion={setActiveReviewQuestion} checkedQuestions={checkedQuestions} setCheckedQuestions={setCheckedQuestions} />}
         {view === "help" && <HelpView navigate={navigate} />}
-        {view === "settings" && <SettingsView navigate={navigate} />}
+        {view === "settings" && <SettingsView navigate={navigate} userName={user.name ?? "Learner"} userEmail={user.email ?? "Manus account"} />}
       </main>
     </div>
   );
+}
+
+function initials(value: string) {
+  return value.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]?.toUpperCase()).join("") || "L";
+}
+
+function LoginPage({ loading = false }: { loading?: boolean }) {
+  return <main className="login-page"><div className="login-card"><img src="/synq-icon.png" alt="" className="login-mark" /><span className="eyebrow">Synq learning workspace</span><h1>Your next learning path starts here.</h1><p>Sign in with your Manus account to create private notebooks, generate MPS adventures, and keep your progress in one place.</p>{loading ? <div className="login-loading"><span className="button-spinner" /> Checking your session…</div> : <button className="primary-button login-button" type="button" onClick={() => startLogin()}>Continue with Manus <ArrowUpRight size={16} /></button>}<small>Synq never uses a shared demo profile. Your workspace belongs to your account.</small></div></main>;
 }
 
 const mpsAdventureStages = [
@@ -267,18 +284,18 @@ function LecturesView({ navigate, sources }: { navigate: (path: string) => void;
   return <div className="subpage-grid"><section className="content-column"><SubpageIntro eyebrow="Lecture Lens" title="Your source records." description="Keep the original text, timestamps, and uncertainty close to the notebook they shaped." action={<button className="primary-button" type="button" onClick={() => navigate("/")}><Paperclip size={15} /> Add transcript</button>} /><div className="source-record-card">{sources.map(source => <div className="source-record-heading" key={source.id}><div className="source-icon"><FileText size={19} /></div><div><span className="status-chip"><Check size={12} /> {source.status}</span><h2>{source.fileName ?? source.title}</h2><p>{source.sourceType.replace("_", " ")} · saved to your workspace</p></div></div>)}{sources.length === 0 && <div className="empty-library"><Sparkles size={19} /><strong>No source records yet</strong><span>Build a notebook from pasted text or a .txt/.md upload.</span><button className="text-button" type="button" onClick={() => navigate("/")}>Add your first source <ArrowUpRight size={14} /></button></div>}<div className="record-stats"><div><strong>{sources.length}</strong><span>saved sources</span></div><div><strong>TXT</strong><span>supported now</span></div><div><strong>AI</strong><span>validated generation</span></div></div></div></section><aside className="utility-column"><div className="utility-card"><div className="utility-title"><span>Processing state</span><span className="tiny-live"><span className="signal-pulse" /> live</span></div><div className="state-step done"><Check size={13} /> Source record created</div><div className="state-step done"><Check size={13} /> Ownership verified</div><div className="state-step current"><Clock3 size={13} /> Master Pedagogy validates output</div></div><div className="utility-card"><div className="utility-title"><span>Source privacy</span><CircleHelp size={15} /></div><p className="utility-copy">Your source stays attached to your account and is never sent to the browser as a public asset.</p></div></aside></div>;
 }
 
-function MasteryView({ reviewStarted, activeReviewQuestion, setActiveReviewQuestion, checkedQuestions, setCheckedQuestions }: { reviewStarted: boolean; activeReviewQuestion: number; setActiveReviewQuestion: (index: number) => void; checkedQuestions: number[]; setCheckedQuestions: (questions: number[]) => void }) {
+function MasteryView({ reviewStarted, setReviewStarted, activeReviewQuestion, setActiveReviewQuestion, checkedQuestions, setCheckedQuestions }: { reviewStarted: boolean; setReviewStarted: (started: boolean) => void; activeReviewQuestion: number; setActiveReviewQuestion: (index: number) => void; checkedQuestions: number[]; setCheckedQuestions: (questions: number[]) => void }) {
   const questions = fixtureLectureNote.reviewQuestions;
   const checked = checkedQuestions.includes(activeReviewQuestion);
-  return <div className="subpage-grid"><section className="content-column"><SubpageIntro eyebrow="Synq Mastery" title="Practice what you just learned." description="A transparent review loop: answer, check your understanding, and return to the source when something feels uncertain." action={<span className="signal-badge"><span className="signal-pulse" /> {checkedQuestions.length}/{questions.length} checked</span>} /><div className="mastery-hero"><div className="mastery-score"><span className="eyebrow">Notebook readiness</span><strong>68<span>%</span></strong><p>Good foundation · 3 concepts ready for retrieval</p></div><div className="mastery-bars"><div><span>Feedback loops</span><i style={{ width: "82%" }} /></div><div><span>Interventions</span><i style={{ width: "61%" }} /></div><div><span>Uncertainty handling</span><i style={{ width: "45%" }} /></div></div></div><div className="review-panel"><div className="review-panel-heading"><div><span className="eyebrow">Knowledge check {activeReviewQuestion + 1} of {questions.length}</span><h2>{questions[activeReviewQuestion]}</h2></div><MessageCircleQuestion size={22} className="lime-icon" /></div>{reviewStarted || checkedQuestions.length > 0 ? <><textarea placeholder="Write a short answer in your own words…" aria-label="Knowledge check answer" /><div className="review-actions"><button className={`secondary-button ${checked ? "is-checked" : ""}`} type="button" onClick={() => { if (!checked) setCheckedQuestions([...checkedQuestions, activeReviewQuestion]); }}>{checked ? <><Check size={14} /> Checked</> : "Mark as understood"}</button><button className="primary-button" type="button" disabled={activeReviewQuestion >= questions.length - 1} onClick={() => setActiveReviewQuestion(activeReviewQuestion + 1)}>Next prompt <ChevronRight size={14} /></button></div></> : <div className="review-start"><p>Start with a one-minute recall. There is no score yet—just a place to make your understanding visible.</p><button className="primary-button" type="button" onClick={() => setActiveReviewQuestion(0)}>Begin review <Play size={14} fill="currentColor" /></button></div>}</div></section><aside className="utility-column"><div className="utility-card"><div className="utility-title"><span>Review rhythm</span><Gauge size={15} /></div><div className="streak-number">02 <span>sessions this week</span></div><div className="mini-calendar"><span className="is-done">M</span><span className="is-done">T</span><span>W</span><span>Th</span><span>F</span></div><p className="utility-copy">Short, frequent retrieval beats one long reread. Come back when the next prompt is due.</p></div><div className="utility-card"><div className="utility-title"><span>Review map</span></div>{questions.map((question, index) => <button className={`review-map-row ${activeReviewQuestion === index ? "is-active" : ""}`} type="button" key={question} onClick={() => setActiveReviewQuestion(index)}><span>0{index + 1}</span><strong>{question}</strong>{checkedQuestions.includes(index) && <Check size={13} />}</button>)}</div></aside></div>;
+  return <div className="subpage-grid"><section className="content-column"><SubpageIntro eyebrow="Synq Mastery" title="Practice what you just learned." description="A transparent review loop: answer, check your understanding, and return to the source when something feels uncertain." action={<span className="signal-badge"><span className="signal-pulse" /> {checkedQuestions.length}/{questions.length} checked</span>} /><div className="mastery-hero"><div className="mastery-score"><span className="eyebrow">Notebook readiness</span><strong>68<span>%</span></strong><p>Good foundation · 3 concepts ready for retrieval</p></div><div className="mastery-bars"><div><span>Feedback loops</span><i style={{ width: "82%" }} /></div><div><span>Interventions</span><i style={{ width: "61%" }} /></div><div><span>Uncertainty handling</span><i style={{ width: "45%" }} /></div></div></div><div className="review-panel"><div className="review-panel-heading"><div><span className="eyebrow">Knowledge check {activeReviewQuestion + 1} of {questions.length}</span><h2>{questions[activeReviewQuestion]}</h2></div><MessageCircleQuestion size={22} className="lime-icon" /></div>{reviewStarted || checkedQuestions.length > 0 ? <><textarea placeholder="Write a short answer in your own words…" aria-label="Knowledge check answer" /><div className="review-actions"><button className={`secondary-button ${checked ? "is-checked" : ""}`} type="button" onClick={() => { if (!checked) setCheckedQuestions([...checkedQuestions, activeReviewQuestion]); }}>{checked ? <><Check size={14} /> Checked</> : "Mark as understood"}</button><button className="primary-button" type="button" disabled={activeReviewQuestion >= questions.length - 1} onClick={() => setActiveReviewQuestion(activeReviewQuestion + 1)}>Next prompt <ChevronRight size={14} /></button></div></> : <div className="review-start"><p>Start with a one-minute recall. There is no score yet—just a place to make your understanding visible.</p><button className="primary-button" type="button" onClick={() => { setReviewStarted(true); setActiveReviewQuestion(0); }}>Begin review <Play size={14} fill="currentColor" /></button></div>}</div></section><aside className="utility-column"><div className="utility-card"><div className="utility-title"><span>Review rhythm</span><Gauge size={15} /></div><div className="streak-number">02 <span>sessions this week</span></div><div className="mini-calendar"><span className="is-done">M</span><span className="is-done">T</span><span>W</span><span>Th</span><span>F</span></div><p className="utility-copy">Short, frequent retrieval beats one long reread. Come back when the next prompt is due.</p></div><div className="utility-card"><div className="utility-title"><span>Review map</span></div>{questions.map((question, index) => <button className={`review-map-row ${activeReviewQuestion === index ? "is-active" : ""}`} type="button" key={question} onClick={() => { setReviewStarted(true); setActiveReviewQuestion(index); }}><span>0{index + 1}</span><strong>{question}</strong>{checkedQuestions.includes(index) && <Check size={13} />}</button>)}</div></aside></div>;
 }
 
 function HelpView({ navigate }: { navigate: (path: string) => void }) {
   return <div className="subpage-grid"><section className="content-column"><SubpageIntro eyebrow="Help & feedback" title="A calmer way to learn." description="Synq keeps the source, the explanation, and the next useful action connected. Here are the essentials for this first slice." action={<button className="secondary-button" type="button" onClick={() => navigate("/")}><ArrowLeft size={14} /> Back to Workspace</button>} /><div className="help-grid">{[["How intake works", "Paste text or attach a .txt/.md file. The source record stays visible while the notebook is prepared."], ["Why is this a fixture?", "This stage validates the browser contract and rendering. Provider-backed Master Pedagogy generation is the next stage."], ["Where does uncertainty go?", "Uncertain claims stay in the notebook’s uncertainty lane rather than being silently filled in."], ["Need to say something?", "Send feedback through the next product handoff; this panel is the place to record the question you want answered."]].map(([title, body]) => <article className="help-card" key={title}><CircleHelp size={17} /><h3>{title}</h3><p>{body}</p><button className="text-button" type="button" onClick={() => navigate("/")}>Return to workspace <ArrowUpRight size={14} /></button></article>)}</div></section></div>;
 }
 
-function SettingsView({ navigate }: { navigate: (path: string) => void }) {
-  return <div className="subpage-grid"><section className="content-column"><SubpageIntro eyebrow="Personal space" title="Settings that stay simple." description="The first slice keeps the focus on your notebook and source. These preferences are ready for the next connected stage." action={<button className="secondary-button" type="button" onClick={() => navigate("/")}><ArrowLeft size={14} /> Back to Workspace</button>} /><div className="settings-card"><div className="settings-row"><div><strong>Source retention</strong><span>Keep source text with the notebook until you delete it.</span></div><span className="toggle is-on">On</span></div><div className="settings-row"><div><strong>Uncertainty reminders</strong><span>Keep uncertain items visible in the notebook and review flow.</span></div><span className="toggle is-on">On</span></div><div className="settings-row"><div><strong>Generation provider</strong><span>Server-side provider configuration will be connected in the next stage.</span></div><span className="settings-status">Not connected</span></div></div></section><aside className="utility-column"><div className="utility-card"><div className="utility-title"><span>Account</span><Settings size={15} /></div><div className="account-card"><div className="avatar">JR</div><div><strong>Jordan R.</strong><span>Personal space</span></div></div><button className="secondary-button" type="button" onClick={() => navigate("/help")}>Need help? <ArrowUpRight size={14} /></button></div></aside></div>;
+function SettingsView({ navigate, userName, userEmail }: { navigate: (path: string) => void; userName: string; userEmail: string }) {
+  return <div className="subpage-grid"><section className="content-column"><SubpageIntro eyebrow="Personal space" title="Settings that stay simple." description="The first slice keeps the focus on your notebook and source. These preferences are ready for the next connected stage." action={<button className="secondary-button" type="button" onClick={() => navigate("/")}><ArrowLeft size={14} /> Back to Workspace</button>} /><div className="settings-card"><div className="settings-row"><div><strong>Source retention</strong><span>Keep source text with the notebook until you delete it.</span></div><span className="toggle is-on">On</span></div><div className="settings-row"><div><strong>Uncertainty reminders</strong><span>Keep uncertain items visible in the notebook and review flow.</span></div><span className="toggle is-on">On</span></div><div className="settings-row"><div><strong>Generation provider</strong><span>Server-side provider configuration will be connected in the next stage.</span></div><span className="settings-status">Not connected</span></div></div></section><aside className="utility-column"><div className="utility-card"><div className="utility-title"><span>Account</span><Settings size={15} /></div><div className="account-card"><div className="avatar">{initials(userName)}</div><div><strong>{userName}</strong><span>{userEmail}</span></div></div><button className="secondary-button" type="button" onClick={() => navigate("/help")}>Need help? <ArrowUpRight size={14} /></button></div></aside></div>;
 }
 
 function SubpageIntro({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action: React.ReactNode }) {

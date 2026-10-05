@@ -16,6 +16,7 @@ function Router() {
       <Route path={"/lectures"} component={Home} />
       <Route path={"/mps"} component={Home} />
       <Route path={"/mps/path/:id"} component={Home} />
+      <Route path={"/recall"} component={Home} />
       <Route path={"/mastery"} component={Home} />
       <Route path={"/help"} component={Home} />
       <Route path={"/settings"} component={Home} />

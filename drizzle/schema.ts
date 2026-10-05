@@ -107,6 +107,17 @@ export const revisions = mysqlTable("revisions", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, table => ({ userScheduleIdx: index("revisions_user_schedule_idx").on(table.userId, table.scheduledFor) }));
 
+export const recallArtifacts = mysqlTable("recall_artifacts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  notebookId: int("notebookId").notNull().references(() => notebooks.id, { onDelete: "cascade" }),
+  kind: varchar("kind", { length: 40 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  markdown: text("markdown").notNull(),
+  citations: json("citations").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => ({ recallUserIdx: index("recall_artifacts_user_created_idx").on(table.userId, table.createdAt) }));
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type LectureSource = typeof lectureSources.$inferSelect;
@@ -117,3 +128,4 @@ export type Assessment = typeof assessments.$inferSelect;
 export type AssessmentAttempt = typeof assessmentAttempts.$inferSelect;
 export type MasteryItem = typeof masteryItems.$inferSelect;
 export type Revision = typeof revisions.$inferSelect;
+export type RecallArtifactRecord = typeof recallArtifacts.$inferSelect;

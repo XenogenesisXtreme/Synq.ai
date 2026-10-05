@@ -22,7 +22,7 @@ export async function createLectureSource(input: {
 }) {
   const db = requireDatabase(await getDb());
   return db.transaction(async tx => {
-    const sourceResult = await tx.insert(lectureSources).values({
+    await tx.insert(lectureSources).values({
       userId: input.userId,
       title: input.title,
       content: input.content,
@@ -31,15 +31,20 @@ export async function createLectureSource(input: {
       mimeType: input.mimeType,
       status: "pending",
     });
-    const sourceId = Number((sourceResult as unknown as { insertId: number }).insertId);
-    const runResult = await tx.insert(processingRuns).values({
+    const sourceRows = await tx.select({ id: lectureSources.id }).from(lectureSources).where(and(eq(lectureSources.userId, input.userId), eq(lectureSources.title, input.title))).orderBy(desc(lectureSources.createdAt)).limit(1);
+    const sourceId = sourceRows[0]?.id;
+    if (!sourceId) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Source record could not be created" });
+    await tx.insert(processingRuns).values({
       userId: input.userId,
       sourceId,
       promptVersion: "mps-v1",
       schemaVersion: "lecture-note-v1",
       status: "pending",
     });
-    return { sourceId, processingRunId: Number((runResult as unknown as { insertId: number }).insertId) };
+    const runRows = await tx.select({ id: processingRuns.id }).from(processingRuns).where(and(eq(processingRuns.userId, input.userId), eq(processingRuns.sourceId, sourceId))).orderBy(desc(processingRuns.createdAt)).limit(1);
+    const processingRunId = runRows[0]?.id;
+    if (!processingRunId) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Processing run could not be created" });
+    return { sourceId, processingRunId };
   });
 }
 
@@ -94,7 +99,7 @@ export async function generateOwnedNotebook(userId: number, sourceId: number) {
   const startedAt = Date.now();
   try {
     const generated = await generateLectureNote({ title: source.title, content: source.content });
-    const notebookResult = await db.insert(notebooks).values({
+    await db.insert(notebooks).values({
       userId,
       sourceId,
       processingRunId: run.id,
@@ -105,7 +110,9 @@ export async function generateOwnedNotebook(userId: number, sourceId: number) {
       lessonPath: buildLessonPath(generated.note),
       version: 1,
     });
-    const notebookId = Number((notebookResult as unknown as { insertId: number }).insertId);
+    const notebookRows = await db.select({ id: notebooks.id }).from(notebooks).where(and(eq(notebooks.sourceId, sourceId), eq(notebooks.userId, userId), isNull(notebooks.deletedAt))).orderBy(desc(notebooks.createdAt)).limit(1);
+    const notebookId = notebookRows[0]?.id;
+    if (!notebookId) throw new Error("Generated notebook could not be persisted");
     await db.update(lectureSources).set({ status: "completed" }).where(eq(lectureSources.id, sourceId));
     await db.update(processingRuns).set({
       status: "completed",
@@ -116,6 +123,7 @@ export async function generateOwnedNotebook(userId: number, sourceId: number) {
     }).where(eq(processingRuns.id, run.id));
     return { notebookId, processingRunId: run.id, status: "completed" as const };
   } catch (error) {
+    console.error("[MPS] Generation failed", error);
     await db.update(lectureSources).set({ status: "failed", errorCode: "MPS_GENERATION_FAILED" }).where(eq(lectureSources.id, sourceId));
     await db.update(processingRuns).set({ status: "failed", errorCode: "MPS_GENERATION_FAILED", durationMs: Date.now() - startedAt }).where(eq(processingRuns.id, run.id));
     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Notebook generation failed; your source is preserved and can be retried" });
