@@ -4,7 +4,8 @@
 
 ## Branch layout
 
-- **Build branch:** `build` — implementation work only; branch from `main`.
+- **Build branch:** `build` — preserved integration/rollback branch; branch from `main`.
+- **Website branch:** `website` — active integrated UI and deployment candidate.
 - **Planning branch:** `planning` — approved planning documents and the full decision record.
 - **Repository:** https://github.com/XenogenesisXtreme/Synq.ai
 - **Planning branch URL:** https://github.com/XenogenesisXtreme/Synq.ai/tree/planning
@@ -55,4 +56,12 @@ Managed Webdev initialization has now been attempted three times and failed at t
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
 
-**Latest handoff:** The scoped `website` branch is pushed at the reference-style Workspace commit. Validation passes with `npm test` (3 tests), `npm run check`, and `npm run build`; the public port-3000 preview returns HTTP 200. The original managed Webdev initialization blocker remains recorded; this preview uses the repository Vite server and does not claim managed hosting.
+**Latest handoff:** The scoped `website` branch is now the active integrated candidate. It preserves the reference-style Workspace and adds the build branch server generation, provider routing, persistence, Supabase migrations, deployment configuration, and LectureNote contract dependency. The original `build` branch remains untouched as the rollback/integration source. Website validation is required after this integration before Vercel Preview deployment. The original managed Webdev initialization blocker remains recorded; this preview uses the repository Vite server and does not claim managed hosting.
+
+
+## Integration record
+- Integrated the non-secret implementation boundaries from `origin/build` into `website` without deleting or rewriting `build`.
+- Preserved website UI files and the website package/tooling configuration.
+- Added server-side generation, model routing, Supabase persistence, MPS services, Supabase migrations, `vercel.json`, and the `src/lib/lecture.ts` contract dependency.
+- The protected `.env.example` file remains on `build`; provider values must be configured through the secure deployment-secret workflow, never committed.
+- Next step: run website tests, typecheck, and production build; resolve any contract or dependency issues before Vercel Preview deployment.
