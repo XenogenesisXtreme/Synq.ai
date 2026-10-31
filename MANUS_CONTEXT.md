@@ -148,3 +148,12 @@ At each handoff, record:
 - This is planning only. No application files, `build`, `website`, or `main` branch were changed. No tests were run because no code was changed.
 - Next: review the uploaded Claude Fable 5.1 system prompt carefully against the proposal; refine the capability matrix and integration boundaries; get product approval for priority, UI entry point, provider/model, and sandbox approach before implementation.
 - Latest planning commit: `4de0de81e37cd377b144918c67c9a1654801c559`.
+
+
+## Synq Agent source audit addition (2026-10-31)
+
+- Read the user-uploaded `Pasted text(1).txt` source (8,742 lines) and added `14-claude-prompt-source-audit-and-synq-requirements.md` with capability traceability, implementation contracts, product-vs-platform separation, security/evaluation implications, phased rollout, and decisions required before coding.
+- The source is a mix of behavior rules, memory filesystem instructions, tool schemas, connector definitions, UI/display tools, and Anthropic-specific product/runtime details. The audit deliberately distinguishes transferable requirements from provider-specific or non-portable capabilities; it does not reproduce the prompt.
+- Planning only; no app code, tests, `build`, `website`, or `main` changed.
+- Next concrete task: turn the audit into an implementation-ready agent PRD and vertical-slice task breakdown, but first settle UI entry point, first model/provider, sandbox/runtime, MVP tools, and whether agent work proceeds alongside or after the MPS notebook quality gate.
+- Latest planning commit: `d017e545c403fbaaf86dfe3ace07fddd7e8dd44e`.
