@@ -140,3 +140,11 @@ At each handoff, record:
 - the next task and any blocker.
 
 **Current handoff:** The active planning branch records that the full implementation PDF is committed here for the next Manus account. Application implementation is on `build` at `5e321d1`, with the reference-style Workspace, locally functional source/file/library/review interactions, `.env.example`, the reference schema at `supabase/001_initial_schema.sql`, and the Supabase-recognized migration at `supabase/migrations/20261002100000_initial_schema.sql`; the build branch passes `npm test`, `npm run check`, and `npm run build`. The `website` branch remains a scoped visual prototype. Supabase/provider secrets are available to the next account through its secure environment, never through Git or this file. Continue from `build`, not from `planning`, and keep `main` untouched until the release gate passes. The working tree must be clean after this handoff commit.
+
+
+## Synq Agent planning addition (2026-10-31)
+
+- Added `13-synq-agent-capability-and-architecture.md` as an initial, unapproved proposal mapping prompt-described agent capabilities to Synq requirements, architecture, safety constraints, phased delivery, acceptance criteria, and open decisions.
+- This is planning only. No application files, `build`, `website`, or `main` branch were changed. No tests were run because no code was changed.
+- Next: review the uploaded Claude Fable 5.1 system prompt carefully against the proposal; refine the capability matrix and integration boundaries; get product approval for priority, UI entry point, provider/model, and sandbox approach before implementation.
+- Latest planning commit: `4de0de81e37cd377b144918c67c9a1654801c559`.
