@@ -157,3 +157,12 @@ At each handoff, record:
 - Planning only; no app code, tests, `build`, `website`, or `main` changed.
 - Next concrete task: turn the audit into an implementation-ready agent PRD and vertical-slice task breakdown, but first settle UI entry point, first model/provider, sandbox/runtime, MVP tools, and whether agent work proceeds alongside or after the MPS notebook quality gate.
 - Latest planning commit: `d017e545c403fbaaf86dfe3ace07fddd7e8dd44e`.
+
+
+## Synq Agent MVP PRD addition (2026-10-31)
+
+- Added `15-synq-agent-mvp-prd-and-task-breakdown.md`: proposed MVP user stories, contracts, modules, A0–A7 task breakdown, acceptance checklist, and explicit out-of-scope capabilities.
+- Inspected the current `build` branch top-level, `server/`, `backend/services/`, `src/`, and `package.json`. It is a React/Vite/TypeScript app with Zod, tests/check/build scripts, existing server routes, and MPS router/service code. No agent runtime implementation has been added yet.
+- Existing product roadmap puts the lecture-to-notebook quality gate before Code Bar. The PRD identifies this conflict and recommends choosing whether agent implementation waits, runs in parallel, or begins with a minimal non-disruptive foundation. No sequencing change was approved.
+- Next concrete task: obtain the product decision on sequencing and proposed MVP defaults (Code Bar UI, bounded coding workspace task, provider-neutral adapter, separate sandbox runner). Then implement A0–A2 on `build` without touching `main` or `website`.
+- Latest planning commit: `ab1e3c2b7c1df3acc6d2a9db596df521227164ec`.
