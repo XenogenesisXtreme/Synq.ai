@@ -40,9 +40,11 @@ Start contract-first: fixture notebook, runtime/schema validation, contract test
 Use a 15–20 item golden set and score factual accuracy, faithfulness, pedagogical clarity, completeness, and uncertainty handling. The core loop needs no factual-accuracy or faithfulness score below 3/5 and at least a 4.0/5 average across all five dimensions.
 
 ## Current status
+
 The `build` branch contains the contract-first browser foundation and the reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It now also contains the server-side provider router, contract-validated generation orchestration, Supabase REST persistence adapter, bearer-token authentication boundary, processing-state transitions, a root `vercel.json` deployment configuration, and coordinated Synq.ai repository brand assets in `public/brand/`. The README showcases the banner, and the Workspace favicon uses the new icon. The UI remains fixture-backed until the authenticated route is connected to the deployed client.
 
 ## Next concrete task
+
 Connect the Workspace source composer to `handleGenerateNotebook`, configure the deployment's Supabase server variables, and run limited live OpenRouter/Groq validation through the server boundary. Then add authenticated source/library queries and begin the fixed 15–20 item golden-set evaluation. Keep Cerebras disabled unless separately approved and configured.
 
 ## Blockers
@@ -55,4 +57,4 @@ The current secure environment has Gemini, ElevenLabs, OpenRouter, and Groq cred
 
 At every handoff record commands/tests, current branch and commit, clean-tree status, completed work, next task, and blockers. Update this file in the same commit as the implementation it describes whenever possible.
 
-**Latest handoff:** The reference-style Workspace was brought into `build`, server-side routing/persistence boundaries plus orchestration tests were added, and `vercel.json` was added for Vite deployment. Validation passes with `npm test` (5 tests), `npm run check`, `npm run build`, and `git diff --check`. The original managed Webdev initialization blocker remains recorded; repository Vite development is not managed hosting. Commit and push this handoff together with the implementation, leave `main` untouched, and record the resulting commit hash here.
+**Latest handoff:** On branch `build`, added `public/brand/synq-banner.png` and `public/brand/synq-icon.png`; the README showcases the banner and `index.html` configures the icon as the Workspace favicon. The asset implementation commit is `107150236e4094bc8d6d326801d7c73484846eda`. Validation passed with `npm test` (5 tests), `npm run check`, `npm run build`, and `git diff --check`. `npm ci` reported two high-severity dependency advisories; no dependency changes were made. The working tree was clean after the asset commit. The next task and managed Webdev blocker remain as recorded above; `main` is untouched.
