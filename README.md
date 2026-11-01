@@ -4,6 +4,8 @@
 
 **Status:** Product and architecture planning. This repository currently contains design documents only. Application implementation, production deployment, and public client downloads will follow design approval. For more info, check out my other two repos concerning this one.
 
+<p align="center"><img src="public/brand/synq-banner.png" alt="Synq.ai — Turn lectures into understanding" width="100%"></p>
+
 ## Contents
 
 - [Product summary](#product-summary)

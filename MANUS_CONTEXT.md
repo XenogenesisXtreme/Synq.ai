@@ -40,11 +40,9 @@ Start contract-first: fixture notebook, runtime/schema validation, contract test
 Use a 15–20 item golden set and score factual accuracy, faithfulness, pedagogical clarity, completeness, and uncertainty handling. The core loop needs no factual-accuracy or faithfulness score below 3/5 and at least a 4.0/5 average across all five dimensions.
 
 ## Current status
-
-The `build` branch contains the contract-first browser foundation and the reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It now also contains the server-side provider router, contract-validated generation orchestration, Supabase REST persistence adapter, bearer-token authentication boundary, processing-state transitions, and a root `vercel.json` deployment configuration. The UI remains fixture-backed until the authenticated route is connected to the deployed client.
+The `build` branch contains the contract-first browser foundation and the reference-style Synq learning workspace with sidebar navigation, source composer, notebook card, section preview, source context, learning objectives, and review action. It now also contains the server-side provider router, contract-validated generation orchestration, Supabase REST persistence adapter, bearer-token authentication boundary, processing-state transitions, a root `vercel.json` deployment configuration, and coordinated Synq.ai repository brand assets in `public/brand/`. The README showcases the banner, and the Workspace favicon uses the new icon. The UI remains fixture-backed until the authenticated route is connected to the deployed client.
 
 ## Next concrete task
-
 Connect the Workspace source composer to `handleGenerateNotebook`, configure the deployment's Supabase server variables, and run limited live OpenRouter/Groq validation through the server boundary. Then add authenticated source/library queries and begin the fixed 15–20 item golden-set evaluation. Keep Cerebras disabled unless separately approved and configured.
 
 ## Blockers
