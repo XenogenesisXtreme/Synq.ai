@@ -13,6 +13,20 @@ function requireDatabase(db: Awaited<ReturnType<typeof getDb>>) {
   return db;
 }
 
+async function withGenerationTimeout<T>(work: Promise<T>, timeoutMs = 90_000): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("MPS generation timed out after 90 seconds")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export async function createLectureSource(input: {
   userId: number;
   title: string;
@@ -99,7 +113,7 @@ export async function generateOwnedNotebook(userId: number, sourceId: number) {
   await db.update(processingRuns).set({ status: "processing", errorCode: null }).where(eq(processingRuns.id, run.id));
   const startedAt = Date.now();
   try {
-    const generated = await generateLectureNote({ title: source.title, content: source.content });
+    const generated = await withGenerationTimeout(generateLectureNote({ title: source.title, content: source.content }));
     const meetingNotes = await generateMeetingNotes(source.content);
     const note = meetingNotes.length ? { ...generated.note, meetingNotes } : generated.note;
     await db.insert(notebooks).values({

@@ -1,24 +1,15 @@
 import { lectureNoteSchema, type LectureNote } from "@shared/lecture";
-import { invokeLLM, listLLMModels, type InvokeResult } from "./_core/llm";
+import { invokeLLM, type InvokeResult } from "./_core/llm";
 
 export const MPS_PROMPT_VERSION = "mps-v1";
 export const LECTURE_NOTE_SCHEMA_VERSION = "lecture-note-v1";
 
 const systemPrompt = `You are Master Pedagogy for Synq.ai. Transform the learner's source into a faithful, useful LectureNote JSON object. Preserve uncertainty instead of inventing facts. The output must contain exactly these top-level fields: title, course, date, overview, processingStatus, learningObjectives, sections, visualHighlights, keyTerms, reviewQuestions, examReview, uncertainItems, transcript. Every section needs a stable unique id, normalized HH:MM:SS timeStart/timeEnd, explanation, keyPoints, definitions, formulas, workedExamples, teacherEmphasis, commonMistakes, linkedVisuals, and may include intuition, whyItMatters, stepByStep, selfCheck, connections. Every visual needs a stable unique id, normalized timestamp, type, caption, whatItShows, and a relatedSection that exists. Transcript lines use normalized HH:MM:SS timestamps and may link to sectionId. Keep unsupported claims in uncertainItems. Do not output Markdown fences or commentary. processingStatus must be \"completed\" only when the JSON is structurally complete; it does not certify factual correctness.`;
 
-let cachedModelId: string | undefined;
-
 async function resolveModelId(): Promise<string | undefined> {
-  const configured = process.env.MPS_MODEL_ID?.trim();
-  if (configured) return configured;
-  if (cachedModelId) return cachedModelId;
-  try {
-    const models = await listLLMModels();
-    cachedModelId = models.data.find(model => model.id === "gpt-5-mini")?.id ?? models.data[0]?.id;
-  } catch {
-    // The platform default remains a valid fallback when the catalog is unavailable.
-  }
-  return cachedModelId;
+  // Avoid a separate catalog request before every first adventure. The managed
+  // runtime exposes gpt-5-mini directly; a configured model can still override it.
+  return process.env.MPS_MODEL_ID?.trim() || "gpt-5-mini";
 }
 
 function extractJson(content: string): unknown {
@@ -92,7 +83,7 @@ export async function generateLectureNote(source: { title: string; content: stri
   const modelId = await resolveModelId();
   const result = await invokeLLM({
     ...(modelId ? { model: modelId } : {}),
-    maxTokens: 16000,
+    maxTokens: 9000,
     responseFormat: { type: "json_object" },
     messages: [
       { role: "system", content: systemPrompt },
