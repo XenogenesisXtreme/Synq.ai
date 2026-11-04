@@ -18,6 +18,34 @@ export const transcriptLineSchema = z.object({
   sectionId: z.string().min(1).optional(),
 });
 
+export const meetingActionItemSchema = z.object({
+  owner: z.string().min(1),
+  task: z.string().min(1),
+  dueDate: z.string().min(1).optional(),
+});
+
+export const meetingTopicSchema = z.object({
+  timestamp: timestampSchema,
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  bullets: z.array(z.string().min(1)),
+});
+
+export const meetingNoteSchema = z.object({
+  id: z.string().min(1),
+  sourceUrl: z.string().url(),
+  title: z.string().min(1),
+  status: z.enum(["ready", "needs_access", "failed"]),
+  durationSeconds: z.number().int().nonnegative().optional(),
+  overview: z.string().min(1),
+  attendees: z.array(z.string().min(1)),
+  topics: z.array(meetingTopicSchema),
+  decisions: z.array(z.string().min(1)),
+  actionItems: z.array(meetingActionItemSchema),
+  followUps: z.array(z.string().min(1)),
+  accessMessage: z.string().min(1).optional(),
+});
+
 export const definitionSchema = z.object({
   term: z.string().min(1),
   meaning: z.string().min(1),
@@ -77,6 +105,7 @@ export const lectureNoteSchema = z
     examReview: z.array(z.string().min(1)),
     uncertainItems: z.array(uncertainItemSchema),
     transcript: z.array(transcriptLineSchema),
+    meetingNotes: z.array(meetingNoteSchema).optional(),
   })
   .superRefine((note, ctx) => {
     const sectionIds = new Set<string>();
@@ -107,6 +136,9 @@ export const lectureNoteSchema = z
 
 export type VisualType = z.infer<typeof visualTypeSchema>;
 export type TranscriptLine = z.infer<typeof transcriptLineSchema>;
+export type MeetingActionItem = z.infer<typeof meetingActionItemSchema>;
+export type MeetingTopic = z.infer<typeof meetingTopicSchema>;
+export type MeetingNote = z.infer<typeof meetingNoteSchema>;
 export type Definition = z.infer<typeof definitionSchema>;
 export type WorkedExample = z.infer<typeof workedExampleSchema>;
 export type LectureSection = z.infer<typeof lectureSectionSchema>;
